@@ -1,5 +1,5 @@
 var assert = require("assert");
-import todo from "../dist/TODO-PACKAGE-NAME";
+import todo from "../dist/direction";
 
 describe("Package", function () {
   it("works", ()=>{

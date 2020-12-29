@@ -23,10 +23,10 @@ jobs:
     - run: npm ci
     - run: make
     - run: |
-        mkdir parsegraph-TODO-PACKAGE-NAME
-        cp -r -t parsegraph-TODO-PACKAGE-NAME package.json package-lock.json README.md demo/ LICENSE dist/
-        tar cvzf parsegraph-TODO-PACKAGE-NAME.tar.gz parsegraph-TODO-PACKAGE-NAME/
+        mkdir parsegraph-direction
+        cp -r -t parsegraph-direction package.json package-lock.json README.md demo/ LICENSE dist/
+        tar cvzf parsegraph-direction.tar.gz parsegraph-direction/
     - uses: actions/upload-artifact@v2
       with:
-        name: parsegraph-TODO-PACKAGE-NAME-${{ github.run_number }}
-        path: parsegraph-TODO-PACKAGE-NAME.tar.gz
+        name: parsegraph-direction-${{ github.run_number }}
+        path: parsegraph-direction.tar.gz

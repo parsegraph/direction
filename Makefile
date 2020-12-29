@@ -1,4 +1,4 @@
-DIST_NAME = TODO-PACKAGE-NAME
+DIST_NAME = direction
 
 SCRIPT_FILES = \
 	src/$(DIST_NAME).ts
@@ -44,7 +44,7 @@ doc: esdoc
 
 dist/$(DIST_NAME).js: package.json package-lock.json $(SCRIPT_FILES)
 	npm run build
-	mv dist/src/* dist/
+	mv -v dist/src/* dist/
 
 clean:
 	rm -rf dist .nyc_output
