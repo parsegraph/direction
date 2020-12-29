@@ -1,8 +1,12 @@
 var assert = require("assert");
-import todo from "../dist/direction";
+import {
+  Direction,
+  readDirection
+}
+from "../dist/direction";
 
 describe("Package", function () {
   it("works", ()=>{
-    assert.equal(todo(), 42);
+    assert.equal(Direction.FORWARD, readDirection('f'));
   });
 });
