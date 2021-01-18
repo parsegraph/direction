@@ -600,6 +600,16 @@ export default class DirectionNode {
     return deeplyLinked;
   }
 
+  sanitizeLayoutPreference(given: PreferredAxis): PreferredAxis {
+    const paxis = getDirectionAxis(this.parentDirection());
+    if (given === PreferredAxis.VERTICAL) {
+      given = paxis === Axis.VERTICAL ? PreferredAxis.PARENT : PreferredAxis.PERPENDICULAR;
+    } else if (given === PreferredAxis.HORIZONTAL) {
+      given = paxis === Axis.HORIZONTAL ? PreferredAxis.PARENT : PreferredAxis.PERPENDICULAR;
+    }
+    return given;
+  }
+
   setLayoutPreference(given: PreferredAxis): void {
     const b =
       this.parentDirection() === Direction.BACKWARD ?
@@ -680,12 +690,7 @@ export default class DirectionNode {
       return;
     }
 
-    const paxis = getDirectionAxis(this.parentDirection());
-    if (given === PreferredAxis.VERTICAL) {
-      given = paxis === Axis.VERTICAL ? PreferredAxis.PARENT : PreferredAxis.PERPENDICULAR;
-    } else if (given === PreferredAxis.HORIZONTAL) {
-      given = paxis === Axis.HORIZONTAL ? PreferredAxis.PARENT : PreferredAxis.PERPENDICULAR;
-    }
+    given = this.sanitizeLayoutPreference(given);
 
     const curCanon = this.canonicalLayoutPreference();
     this._layoutPreference = given;
@@ -694,6 +699,7 @@ export default class DirectionNode {
       return;
     }
 
+    const paxis = getDirectionAxis(this.parentDirection());
     if (curCanon === PreferredAxis.PARENT) {
       if (paxis === Axis.HORIZONTAL) {
         horzToVert.call(this);
