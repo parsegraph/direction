@@ -557,6 +557,107 @@ describe("DirectionCaret", function() {
     },
   );
 
+  it('Disconnect simple test', function() {
+    // console.log("DISCONNECT SIMPLE TEST");
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove('f', 'b');
+    car.spawnMove('f', 'b');
+    // *=[]=[] <--newRoot == car
+    // ^oldRoot
+    const newRoot = car.node();
+    if (originalRoot._layoutNext != newRoot) {
+      console.log('originalRoot', originalRoot);
+      console.log('midRoot', midRoot);
+      console.log('layoutAfter of originalRoot', originalRoot._layoutNext);
+      console.log('newRoot', newRoot);
+      throw new Error('Original\'s previous should be newroot');
+    }
+    // console.log("Doing disconnect");
+    car.disconnect();
+    if (originalRoot._layoutNext != midRoot) {
+      console.log('originalRoot', originalRoot);
+      console.log('midRoot', midRoot);
+      console.log('layoutAfter of originalRoot', originalRoot._layoutNext);
+      console.log('newRoot', newRoot);
+      throw new Error('layoutAfter is invalid');
+    }
+  });
+
+  it('Disconnect simple test, reversed', function() {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove('f', 'b');
+    car.spawnMove('f', 'b');
+    const newRoot = car.node();
+    car.disconnect();
+    if (originalRoot._layoutNext != midRoot) {
+      throw new Error('layoutAfter is invalid');
+    }
+  });
+
+  it(
+      'Node Morris world threading connected with crease',
+      function() {
+        const n = new DirectionNode();
+        const b = new DirectionNode();
+        n.connectNode(FORWARD, b);
+        b.setPaintGroup(true);
+        if (b._layoutNext !== b) {
+          throw new Error(
+              'Crease must remove that node' +
+              ' from its parents layout chain (child)',
+          );
+        }
+        if (n._layoutNext !== n) {
+          throw new Error(
+              'Crease must remove that node' +
+              ' from its parents layout chain (parent)',
+          );
+        }
+      },
+  );
+
+  it(
+      'Node Morris world threading connected with creased child',
+      function() {
+        const n = new DirectionNode();
+        const b = new DirectionNode();
+        b.setPaintGroup(true);
+        n.connectNode(FORWARD, b);
+        if (b._layoutNext !== b) {
+          throw new Error(
+              'Crease must remove that node' +
+              ' from its parents layout chain (child)',
+          );
+        }
+        if (n._layoutNext !== n) {
+          throw new Error(
+              'Crease must remove that node' +
+              ' from its parents layout chain (parent)',
+          );
+        }
+      },
+  );
+
+  it('Disconnect complex test', function() {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    car.spawnMove('f', 'b');
+    car.push();
+    // console.log("NODE WITH CHILD", car.node());
+    car.spawnMove('d', 'u');
+    // console.log("MOST DOWNWARD NODE OF CHILD", car.node());
+    car.pop();
+    car.spawnMove('f', 'b');
+    // console.log("Doing complex disc", originalRoot);
+    // console.log(getLayoutNodes(originalRoot));
+    car.disconnect();
+    // console.log("COMPLEX DISCONNECT DONE");
+    // console.log(getLayoutNodes(originalRoot));
+    // newRoot.commitLayoutIteratively();
+  });
+
 });
 
 function getLayoutNodes(node) {
