@@ -1,7 +1,14 @@
 DIST_NAME = direction
 
 SCRIPT_FILES = \
-	src/$(DIST_NAME).ts
+	src/$(DIST_NAME).ts \
+	src/definition.ts \
+	src/DirectionCaret.ts \
+	src/DirectionNode.ts \
+	src/Exception.ts \
+	src/LayoutState.ts \
+	src/NodePalette.ts \
+	src/PreferredAxis.ts
 
 all: build lint test coverage esdoc
 
