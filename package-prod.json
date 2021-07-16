@@ -1,0 +1,17 @@
+{
+    "name": "parsegraph-direction",
+    "version": "1.5.7",
+    "description": "direction",
+    "main": "dist/parsegraph-direction.js",
+    "types": "dist/parsegraph-direction.d.ts",
+    "repository": {
+      "type": "git",
+      "url": "git+ssh://git@github.com/parsegraph/direction.git"
+    },
+    "author": "Rainback, Inc.",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/parsegraph/direction/issues"
+    },
+    "homepage": "https://github.com/parsegraph/direction#readme"
+  }
