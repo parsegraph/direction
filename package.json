@@ -1,6 +1,6 @@
 {
   "name": "parsegraph-direction",
-  "version": "1.5.8-dev",
+  "version": "1.5.9-dev",
   "description": "direction",
   "main": "dist/parsegraph-direction.js",
   "types": "dist/parsegraph-direction.d.ts",
@@ -78,6 +78,6 @@
     "webpack-cli": "^3.3.12",
     "parsegraph-generateid": "^1.4.5",
     "parsegraph-testsuite": "^1.4.3",
-    "parsegraph-timing": "^1.4.5"
+    "parsegraph-timing": "^1.4.6"
   }
 }
