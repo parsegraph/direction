@@ -13,7 +13,7 @@ import {
   DirectionNodePalette,
   PreferredAxis,
 }
-from "../dist/direction";
+from "../dist/parsegraph-direction";
 import {elapsed} from 'parsegraph-timing';
 
 function makeCaret() {
