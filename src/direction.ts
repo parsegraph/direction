@@ -1,6 +1,9 @@
 import DirectionNode, {NeighborData} from './DirectionNode';
 import DirectionCaret from './DirectionCaret';
 
+import NodePalette from './NodePalette';
+import DirectionNodePalette from './DirectionNodePalette';
+
 import LayoutState, {nameLayoutState} from './LayoutState';
 
 import PreferredAxis, {namePreferredAxis, readPreferredAxis} from './PreferredAxis';
@@ -49,5 +52,6 @@ export {
     getPerpendicularAxis, getPositiveDirection,
     getNegativeDirection, forEachCardinalDirection,
     isPositiveDirection, isNegativeDirection,
-    directionSign, alternateDirection
+    directionSign, alternateDirection,
+    NodePalette, DirectionNodePalette
 }

@@ -106,7 +106,7 @@ export default class DirectionNode {
   }
 
   toString(): string {
-    return '[T ' + this._id + ']';
+    return '[DirectionNode ' + this._id + ']';
   }
 
   needsCommit(): boolean {

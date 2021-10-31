@@ -11,12 +11,13 @@ import {
   DOWNWARD,
   INWARD,
   PreferredAxis,
+  DirectionNodePalette
 }
 from "../dist/parsegraph-direction";
 import {elapsed} from 'parsegraph-timing';
 
 function makeCaret() {
-  return new DirectionCaret();
+  return new DirectionCaret(new DirectionNodePalette());
 }
 
 describe("Package", function () {
