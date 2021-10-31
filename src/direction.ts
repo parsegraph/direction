@@ -15,10 +15,6 @@ import Direction, {
     isPositiveDirection, isNegativeDirection, directionSign,
     alternateDirection} from './definition';
 
-import NodePalette from './NodePalette';
-
-import DirectionNodePalette from './DirectionNodePalette';
-
 export default Direction;
 
 const FORWARD = Direction.FORWARD;
@@ -53,6 +49,5 @@ export {
     getPerpendicularAxis, getPositiveDirection,
     getNegativeDirection, forEachCardinalDirection,
     isPositiveDirection, isNegativeDirection,
-    directionSign, alternateDirection,
-    NodePalette, DirectionNodePalette
+    directionSign, alternateDirection
 }

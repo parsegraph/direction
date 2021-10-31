@@ -7,7 +7,6 @@ SCRIPT_FILES = \
 	src/DirectionNode.ts \
 	src/Exception.ts \
 	src/LayoutState.ts \
-	src/NodePalette.ts \
 	src/PreferredAxis.ts
 
 all: build lint test coverage esdoc

@@ -11,17 +11,14 @@ import createException, {
 import generateID from 'parsegraph-generateid';
 import DirectionNode from './DirectionNode';
 import PreferredAxis from './PreferredAxis';
-import NodePalette from './NodePalette';
 
 export default class DirectionCaret<T extends DirectionNode> {
   _nodeRoot: T;
   _nodes: T[];
   _savedNodes: { [key: string]: T };
-  _palette:NodePalette<T>;
 
-  constructor(palette:NodePalette<T>, given?:any) {
-    this._palette = palette;
-    this._nodeRoot = this._palette.spawn(given);
+  constructor(given?:any) {
+    this._nodeRoot = this.doSpawn(given) as T;
 
     // Stack of nodes.
     this._nodes = [this._nodeRoot];
@@ -30,12 +27,16 @@ export default class DirectionCaret<T extends DirectionNode> {
     this._savedNodes = null;
   }
 
-  palette():NodePalette<T> {
-    return this._palette;
+  doSpawn(given?:any):T {
+    return given instanceof DirectionNode ? given as T : new DirectionNode() as T;
+  }
+
+  doReplace(node:DirectionNode, given?:any):void {
+    throw new Error(`Replace of ${node} with ${given} not supported`);
   }
 
   clone(): DirectionCaret<T> {
-    const car = new DirectionCaret<T>(this.palette(), this.node());
+    const car = new DirectionCaret<T>(this.node());
     return car;
   }
 
@@ -248,7 +249,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     inDirection = readDirection(inDirection);
 
     // Spawn a node in the given direction.
-    const created: T = this._palette.spawn(newType);
+    const created: T = this.doSpawn(newType);
     this.node().connectNode(inDirection, created);
     created.setLayoutPreference(PreferredAxis.PERPENDICULAR);
 
@@ -265,7 +266,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     } else {
       withType = args[0];
     }
-    this._palette.replace(node, withType);
+    this.doReplace(node, withType);
   }
 
   spawnMove(
