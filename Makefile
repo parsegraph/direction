@@ -17,7 +17,7 @@ build: dist/parsegraph-$(DIST_NAME).js
 build-prod: dist-prod/parsegraph-$(DIST_NAME).js
 .PHONY: build-prod
 
-demo: dist/$(DIST_NAME).js
+demo: dist/parsegraph-$(DIST_NAME).js
 	npm run demo
 .PHONY: demo
 
