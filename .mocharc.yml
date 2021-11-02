@@ -9,4 +9,3 @@ exit: true
 extension:
   - js
   - ts
-  - test.ts
