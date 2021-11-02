@@ -5,8 +5,10 @@ SCRIPT_FILES = \
 	src/definition.ts \
 	src/DirectionCaret.ts \
 	src/DirectionNode.ts \
+	src/DirectionNodePalette.ts \
 	src/Exception.ts \
 	src/LayoutState.ts \
+	src/NodePalette.ts \
 	src/PreferredAxis.ts
 
 all: build lint test coverage esdoc
