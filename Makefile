@@ -1,6 +1,7 @@
 DIST_NAME = direction
 
 SCRIPT_FILES = \
+	src/DefaultDirectionNode.ts \
 	src/$(DIST_NAME).ts \
 	src/definition.ts \
 	src/DirectionCaret.ts \
