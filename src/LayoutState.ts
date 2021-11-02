@@ -1,6 +1,4 @@
-import createException, {
-  BAD_LAYOUT_STATE,
-} from './Exception';
+import createException, { BAD_LAYOUT_STATE } from "./Exception";
 
 export enum LayoutState {
   NULL = 0,
@@ -12,13 +10,13 @@ export enum LayoutState {
 export function nameLayoutState(given: LayoutState): string {
   switch (given) {
     case LayoutState.NULL:
-      return 'NULL';
+      return "NULL";
     case LayoutState.NEEDS_COMMIT:
-      return 'NEEDS_COMMIT';
+      return "NEEDS_COMMIT";
     case LayoutState.COMMITTED:
-      return 'COMMITTED';
+      return "COMMITTED";
     case LayoutState.IN_COMMIT:
-      return 'IN_COMMIT';
+      return "IN_COMMIT";
   }
   throw createException(BAD_LAYOUT_STATE, given);
 }

@@ -4,22 +4,20 @@ import {
   reverseDirection,
   isVerticalDirection,
   getDirectionAxis,
-} from './definition';
-import createException, {
-  NO_NODE_FOUND,
-} from './Exception';
-import generateID from 'parsegraph-generateid';
-import DirectionNode from './DirectionNode';
-import PreferredAxis from './PreferredAxis';
-import NodePalette from './NodePalette';
+} from "./definition";
+import createException, { NO_NODE_FOUND } from "./Exception";
+import generateID from "parsegraph-generateid";
+import DirectionNode from "./DirectionNode";
+import PreferredAxis from "./PreferredAxis";
+import NodePalette from "./NodePalette";
 
 export default class DirectionCaret<T extends DirectionNode> {
   _nodeRoot: T;
   _nodes: T[];
   _savedNodes: { [key: string]: T };
-  _palette:NodePalette<T>;
+  _palette: NodePalette<T>;
 
-  constructor(palette:NodePalette<T>, given:any) {
+  constructor(palette: NodePalette<T>, given: any) {
     // A mapping of nodes to their saved names.
     this._savedNodes = null;
 
@@ -31,22 +29,24 @@ export default class DirectionCaret<T extends DirectionNode> {
     this._nodes = [this._nodeRoot];
   }
 
-  setPalette(palette:NodePalette<T>) {
+  setPalette(palette: NodePalette<T>) {
     this._palette = palette;
   }
 
-  palette():NodePalette<T> {
+  palette(): NodePalette<T> {
     return this._palette;
   }
 
-  doSpawn(given?:any):T {
+  doSpawn(given?: any): T {
     if (this._palette) {
       return this._palette.spawn(given);
     }
-    return given instanceof DirectionNode ? given as T : new DirectionNode() as T;
+    return given instanceof DirectionNode
+      ? (given as T)
+      : (new DirectionNode() as T);
   }
 
-  doReplace(node:T, given?:any):void {
+  doReplace(node: T, given?: any): void {
     if (this._palette) {
       return this._palette.replace(node, given);
     }
@@ -100,8 +100,8 @@ export default class DirectionCaret<T extends DirectionNode> {
     }
 
     return this.node()
-        .parentNode()
-        .disconnectNode(reverseDirection(this.node().parentDirection()));
+      .parentNode()
+      .disconnectNode(reverseDirection(this.node().parentDirection()));
   }
 
   crease(inDirection?: Direction | string): void {
@@ -188,7 +188,7 @@ export default class DirectionCaret<T extends DirectionNode> {
       return;
     }
     if (id === undefined) {
-      id = '';
+      id = "";
     }
     delete this._savedNodes[id];
   }
@@ -196,12 +196,12 @@ export default class DirectionCaret<T extends DirectionNode> {
   restore(id: string): void {
     if (!this._savedNodes) {
       throw new Error(
-          'No saved nodes were found for the provided ID \'' + id + '\'',
+        "No saved nodes were found for the provided ID '" + id + "'"
       );
     }
     const loadedNode: T = this._savedNodes[id];
     if (loadedNode == null) {
-      throw new Error('No node found for the provided ID \'' + id + '\'');
+      throw new Error("No node found for the provided ID '" + id + "'");
     }
     this._nodes[this._nodes.length - 1] = loadedNode;
   }
@@ -259,10 +259,7 @@ export default class DirectionCaret<T extends DirectionNode> {
   //
   // ////////////////////////////////////////////////////////////////////////////
 
-  spawn(
-      inDirection: Direction | string,
-      newType?: any
-  ): T {
+  spawn(inDirection: Direction | string, newType?: any): T {
     // Interpret the given direction and type for ease-of-use.
     inDirection = readDirection(inDirection);
 
@@ -277,7 +274,7 @@ export default class DirectionCaret<T extends DirectionNode> {
   replace(...args: any[]): void {
     // Retrieve the arguments.
     let node: T = this.node();
-    let withType: T|string;
+    let withType: T | string;
     if (args.length > 1) {
       node = node.nodeAt(readDirection(args[0]));
       withType = args[1];
@@ -287,10 +284,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     this.doReplace(node, withType);
   }
 
-  spawnMove(
-      inDirection: Direction | string,
-      newType: T | string,
-  ): T {
+  spawnMove(inDirection: Direction | string, newType: T | string): T {
     const created: T = this.spawn(inDirection, newType);
     this.move(inDirection);
     return created;

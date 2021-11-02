@@ -36,28 +36,28 @@ export const VERTICAL_ORDER: Direction[] = [
 ];
 
 export function readDirection(given: string | Direction): Direction {
-  if (typeof given === 'number') {
+  if (typeof given === "number") {
     return given;
   }
-  if (typeof given === 'string') {
+  if (typeof given === "string") {
     switch (given.charAt(0)) {
-      case 'f':
-      case 'F':
+      case "f":
+      case "F":
         return Direction.FORWARD;
-      case 'b':
-      case 'B':
+      case "b":
+      case "B":
         return Direction.BACKWARD;
-      case 'u':
-      case 'U':
+      case "u":
+      case "U":
         return Direction.UPWARD;
-      case 'd':
-      case 'D':
+      case "d":
+      case "D":
         return Direction.DOWNWARD;
-      case 'i':
-      case 'I':
+      case "i":
+      case "I":
         return Direction.INWARD;
-      case 'o':
-      case 'O':
+      case "o":
+      case "O":
         return Direction.OUTWARD;
     }
   }
@@ -68,19 +68,19 @@ export function readDirection(given: string | Direction): Direction {
 export function nameDirection(given: Direction): string {
   switch (given) {
     case Direction.NULL:
-      return 'NULL';
+      return "NULL";
     case Direction.FORWARD:
-      return 'FORWARD';
+      return "FORWARD";
     case Direction.BACKWARD:
-      return 'BACKWARD';
+      return "BACKWARD";
     case Direction.DOWNWARD:
-      return 'DOWNWARD';
+      return "DOWNWARD";
     case Direction.UPWARD:
-      return 'UPWARD';
+      return "UPWARD";
     case Direction.INWARD:
-      return 'INWARD';
+      return "INWARD";
     case Direction.OUTWARD:
-      return 'OUTWARD';
+      return "OUTWARD";
   }
 }
 export const isDirection = nameDirection;
@@ -148,11 +148,11 @@ export function isCardinalDirection(given: Direction): boolean {
 export function nameAxis(given: Axis): string {
   switch (given) {
     case Axis.NULL:
-      return 'NULL';
+      return "NULL";
     case Axis.VERTICAL:
-      return 'VERTICAL';
+      return "VERTICAL";
     case Axis.HORIZONTAL:
-      return 'HORIZONTAL';
+      return "HORIZONTAL";
   }
 }
 
