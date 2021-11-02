@@ -15,6 +15,7 @@ export enum Axis {
   NULL = 6,
   HORIZONTAL,
   VERTICAL,
+  Z,
 }
 
 export const HORIZONTAL_ORDER: Direction[] = [
@@ -153,6 +154,8 @@ export function nameAxis(given: Axis): string {
       return "VERTICAL";
     case Axis.HORIZONTAL:
       return "HORIZONTAL";
+    case Axis.Z:
+      return "Z";
   }
 }
 
@@ -166,6 +169,7 @@ export function getDirectionAxis(given: Direction): Axis {
       return Axis.VERTICAL;
     case Direction.INWARD:
     case Direction.OUTWARD:
+      return Axis.Z;
     case Direction.NULL:
       return Axis.NULL;
   }
@@ -185,6 +189,8 @@ export function getPerpendicularAxis(axisOrDirection: Direction | Axis): Axis {
       return Axis.VERTICAL;
     case Axis.VERTICAL:
       return Axis.HORIZONTAL;
+    case Axis.Z:
+      return Axis.Z;
     case Axis.NULL:
       return Axis.NULL;
     default:
@@ -199,6 +205,8 @@ export function getPositiveDirection(given: Axis) {
       return Direction.FORWARD;
     case Axis.VERTICAL:
       return Direction.DOWNWARD;
+    case Axis.Z:
+      return Direction.OUTWARD;
     case Axis.NULL:
       throw new Error("BAD_AXIS");
   }
