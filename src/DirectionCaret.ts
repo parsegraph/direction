@@ -284,7 +284,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     this.doReplace(node, withType);
   }
 
-  spawnMove(inDirection: Direction | string, newType: T | string): T {
+  spawnMove(inDirection: Direction | string, newType?: T | string): T {
     const created: T = this.spawn(inDirection, newType);
     this.move(inDirection);
     return created;
