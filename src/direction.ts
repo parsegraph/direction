@@ -38,6 +38,7 @@ import Direction, {
   directionSign,
   alternateDirection,
 } from "./definition";
+import DefaultDirectionNode from "./DefaultDirectionNode";
 
 export default Direction;
 
@@ -93,4 +94,5 @@ export {
   alternateDirection,
   NodePalette,
   DirectionNodePalette,
+  DefaultDirectionNode,
 };
