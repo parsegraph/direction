@@ -428,19 +428,10 @@ export default class DirectionNode {
       );
     }
     if (this.hasNode(inDirection)) {
-      throw new Error(
-        "Cannot connect a node in the already occupied " +
-          nameDirection(inDirection) +
-          " direction."
-      );
-    }
-    if (node.parentDirection() !== Direction.NULL) {
-      throw new Error("Node to connect must not have a parent.");
+      this.disconnectNode(inDirection);
     }
     if (node.hasNode(reverseDirection(inDirection))) {
-      throw new Error(
-        "Node to connect must not have a node in the connecting direction."
-      );
+      node.disconnectNode(reverseDirection(inDirection));
     }
 
     // Connect the node.
