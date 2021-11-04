@@ -633,6 +633,39 @@ describe("DirectionCaret", function () {
     // console.log(getLayoutNodes(originalRoot));
     // newRoot.commitLayoutIteratively();
   });
+
+  it("Disconnect parent test, forward", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove("f", "b");
+    const newNode = makeCaret().node();
+    originalRoot.connectNode(Direction.FORWARD, newNode);
+    if (originalRoot.nodeAt(Direction.FORWARD) !== newNode) {
+      throw new Error("Unexpected node");
+    }
+  });
+
+  it("Disconnect parent test", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove("i", "b");
+    const newNode = makeCaret().node();
+    originalRoot.connectNode(Direction.INWARD, newNode);
+    if (originalRoot.nodeAt(Direction.INWARD) !== newNode) {
+      throw new Error("Unexpected node");
+    }
+  });
+
+  it("Disconnect parent test, removal", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove("i", "b");
+    const newNode = makeCaret().spawnMove("i", "b");
+    originalRoot.connectNode(Direction.INWARD, newNode);
+    if (originalRoot.nodeAt(Direction.INWARD) !== newNode) {
+      throw new Error("Unexpected node");
+    }
+  });
 });
 
 function getLayoutNodes(node: DirectionNode) {

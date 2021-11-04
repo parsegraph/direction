@@ -476,6 +476,11 @@ export default class DirectionNode {
     if (!this.hasNode(inDirection)) {
       return;
     }
+    if (!this.isRoot() && this.parentDirection() === inDirection) {
+      return this.parentNode().disconnectNode(
+        reverseDirection(this.parentDirection())
+      );
+    }
     // Disconnect the node.
     const neighbor = this._neighbors[inDirection];
     const disconnected = neighbor.node as this;
