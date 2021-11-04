@@ -36,7 +36,7 @@ export class NeighborData {
 let nodeCount: number = 0;
 
 export default class DirectionNode {
-  _id: string|number;
+  _id: string | number;
   _neighbors: NeighborData[];
   _parentNeighbor: NeighborData;
   _layoutState: LayoutState;
