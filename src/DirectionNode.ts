@@ -242,13 +242,24 @@ export default class DirectionNode {
     this.layoutChanged();
   }
 
-  findFirstPaintGroup(): this {
-    let candidate: this = this._layoutNext;
-    while (candidate !== this) {
-      if (candidate.localPaintGroup()) {
-        break;
+  hasAncestor(parent: DirectionNode): boolean {
+    let candidate = this;
+    while (!candidate.isRoot()) {
+      if (candidate == parent) {
+        return true;
       }
-      candidate = candidate._layoutNext;
+      candidate = candidate.parentNode();
+    }
+    return false;
+  }
+
+  findFirstPaintGroup(): this {
+    let candidate: this = this._paintGroupPrev;
+    while (candidate !== this) {
+      if (!candidate.hasAncestor(this)) {
+        return candidate._paintGroupNext;
+      }
+      candidate = candidate._paintGroupPrev;
     }
     return candidate;
   }
@@ -440,6 +451,7 @@ export default class DirectionNode {
     node.assignParent(this, inDirection);
 
     if (node.localPaintGroup()) {
+      //console.log("Connecting local paint group");
       const pg = this.findPaintGroup();
       const paintGroupLast = pg._paintGroupPrev;
       const nodeFirst = node._paintGroupNext;
@@ -489,6 +501,7 @@ export default class DirectionNode {
       this.removeFromLayout(inDirection);
     }
     const paintGroupFirst = disconnected.findFirstPaintGroup();
+    //console.log("First paint group", paintGroupFirst._id);
     DirectionNode.connectPaintGroup(
       paintGroupFirst._paintGroupPrev,
       disconnected._paintGroupNext

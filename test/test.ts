@@ -656,15 +656,102 @@ describe("DirectionCaret", function () {
     }
   });
 
+  it("Disconnect parent test", function () {
+    const n = new DefaultDirectionNode();
+    const b = new DefaultDirectionNode();
+    b.setPaintGroup(true);
+    n.connectNode(INWARD, b);
+
+    const a = new DefaultDirectionNode();
+    const r = new DefaultDirectionNode();
+    r.setPaintGroup(true);
+    a.connectNode(INWARD, r);
+    r.connectNode(INWARD, b);
+
+    if (a._paintGroupNext !== b) {
+      throw new Error("Wanted " + b._id + " but got " + a._paintGroupNext._id);
+    }
+    if (b._paintGroupNext !== r) {
+      throw new Error(
+        "Wanted " + r._id + " but got " + b._paintGroupNext._id + ", b=" + b._id
+      );
+    }
+    if (r._paintGroupNext !== a) {
+      throw new Error(
+        "Wanted " + a._id + " but got " + r._paintGroupNext._id + ", b=" + b._id
+      );
+    }
+  });
+
   it("Disconnect parent test, removal", function () {
     const car = makeCaret();
     const originalRoot = car.node();
-    const midRoot = car.spawnMove("i", "b");
+    car.spawnMove("i", "b");
     const newNode = makeCaret().spawnMove("i", "b");
     originalRoot.connectNode(Direction.INWARD, newNode);
     if (originalRoot.nodeAt(Direction.INWARD) !== newNode) {
       throw new Error("Unexpected node");
     }
+  });
+
+  it("Disconnect parent test, creased removal", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove("i", "b");
+    car.crease();
+    let pgs = originalRoot.dumpPaintGroups();
+    assert.deepEqual(pgs, [midRoot, originalRoot]);
+    const newNode = makeCaret().spawnMove("i", "b");
+    newNode.setPaintGroup(true);
+    originalRoot.connectNode(Direction.INWARD, newNode);
+    if (originalRoot.nodeAt(Direction.INWARD) !== newNode) {
+      throw new Error("Unexpected node");
+    }
+    pgs = originalRoot.dumpPaintGroups();
+    assert.deepEqual(pgs, [newNode, originalRoot]);
+  });
+
+  it("Disconnect parent test, complex creased removal", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    const midRoot = car.spawnMove("i", "b");
+    car.crease();
+    let pgs = originalRoot.dumpPaintGroups();
+    assert.deepEqual(pgs, [midRoot, originalRoot]);
+    const newNode = makeCaret().spawnMove("i", "b");
+    newNode.setPaintGroup(true);
+    midRoot.connectNode(Direction.INWARD, newNode);
+    pgs = originalRoot.dumpPaintGroups();
+    assert.deepEqual(pgs, [newNode, midRoot, originalRoot]);
+  });
+
+  it("Disconnect parent test, creased removal with outer pg", function () {
+    let car = makeCaret();
+    const midRoot = car.spawnMove("i", "b");
+    car.crease();
+    const newNode = car.spawnMove("i", "b");
+    car.crease();
+    let pgs = car.root().dumpPaintGroups();
+    assert.deepEqual(
+      pgs.map((n) => n._id),
+      [newNode._id, midRoot._id, car.root()._id]
+    );
+
+    midRoot.disconnectNode();
+    assert.deepEqual(
+      midRoot.dumpPaintGroups().map((n) => n._id),
+      [newNode._id, midRoot._id]
+    );
+
+    car = makeCaret();
+    const originalRoot = car.node();
+    car.connect("i", midRoot);
+
+    pgs = car.root().dumpPaintGroups();
+    assert.deepEqual(
+      pgs.map((n) => n._id),
+      [newNode._id, midRoot._id, originalRoot._id]
+    );
   });
 });
 
