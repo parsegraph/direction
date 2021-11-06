@@ -123,25 +123,33 @@ describe("DirectionNode", function () {
     }
   });
 
-  it("Viewport - Block with forward creased bud, removed", function () {
+  it("Viewport - Block with forward bud, removed", function () {
     // Spawn the graph.
     const caret = makeCaret();
     const root = caret.root();
     const creased = caret.spawnMove(FORWARD);
     caret.spawnMove(FORWARD);
     creased.disconnectNode();
-    if (creased._paintGroupPrev !== creased) {
-      throw new Error("Creased's previous paint group must be reset");
-    }
-    if (creased._paintGroupNext !== creased) {
-      throw new Error("Creased's next paint group must be reset");
-    }
-    if (root._paintGroupNext !== root) {
-      throw new Error("Root's next paint group must be reset");
-    }
-    if (root._paintGroupPrev !== root) {
-      throw new Error("Root's previous paint group must be reset");
-    }
+    assert.equal(
+      creased._paintGroupPrev._id,
+      creased._id,
+      "Creased's previous paint group must be reset"
+    );
+    assert.equal(
+      creased._paintGroupNext._id,
+      creased._id,
+      "Creased's next paint group must be reset"
+    );
+    assert.equal(
+      root._paintGroupNext._id,
+      root._id,
+      "Root's next paint group must be reset"
+    );
+    assert.equal(
+      root._paintGroupPrev._id,
+      root._id,
+      "Root's previous paint group must be reset"
+    );
   });
 
   it("Node Morris world threading spawned", function () {
@@ -708,7 +716,10 @@ describe("DirectionCaret", function () {
       throw new Error("Unexpected node");
     }
     pgs = originalRoot.dumpPaintGroups();
-    assert.deepEqual(pgs, [newNode, originalRoot]);
+    assert.deepEqual(
+      pgs.map((n) => n._id),
+      [newNode._id, originalRoot._id]
+    );
   });
 
   it("Disconnect parent test, complex creased removal", function () {
@@ -722,7 +733,10 @@ describe("DirectionCaret", function () {
     newNode.setPaintGroup(true);
     midRoot.connectNode(Direction.INWARD, newNode);
     pgs = originalRoot.dumpPaintGroups();
-    assert.deepEqual(pgs, [newNode, midRoot, originalRoot]);
+    assert.deepEqual(
+      pgs.map((n) => n._id),
+      [newNode._id, midRoot._id, originalRoot._id]
+    );
   });
 
   it("Disconnect parent test, creased removal with outer pg", function () {
@@ -751,6 +765,126 @@ describe("DirectionCaret", function () {
     assert.deepEqual(
       pgs.map((n) => n._id),
       [newNode._id, midRoot._id, originalRoot._id]
+    );
+  });
+
+  it("Disconnect parent test, creased removal with outer pg", function () {
+    let car = makeCaret();
+    car.spawnMove("f", "s");
+    const hello = new DefaultDirectionNode();
+    car.node().connectNode(Direction.INWARD, hello);
+
+    const notime = new DefaultDirectionNode();
+    hello.connectNode(Direction.FORWARD, notime);
+
+    let ccar = makeCaret();
+    const there = ccar.spawnMove("i", "b");
+    ccar.crease();
+    car.connect("f", ccar.root());
+
+    assert.deepEqual(
+      car
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [there._id, car.root()._id]
+    );
+  });
+
+  it("Layout disconnection test", function () {
+    let car = makeCaret();
+    car.spawnMove("f", "b");
+    // car is [car.root()]-[b]
+
+    let ccar = makeCaret();
+    ccar.spawnMove("f", "b");
+    let n = ccar.spawnMove("i", "s");
+    ccar.crease();
+    // ccar is [ccar.root()]-[[n]]
+
+    assert.deepEqual(
+      car
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [car.root()._id]
+    );
+
+    assert.deepEqual(
+      ccar
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [n._id, ccar.root()._id],
+      "ccar should have itself and n as paint groups"
+    );
+
+    car.connect("f", ccar.root());
+    // car is now [car.root()]-[ccar.root()]-[[n]]
+
+    assert.notEqual(
+      ccar.root().findPaintGroup()._id,
+      ccar.root()._id,
+      "ccar's paint group is not itself"
+    );
+    assert.equal(
+      ccar.root().findPaintGroup()._id,
+      car.root()._id,
+      "ccar's paint group is root"
+    );
+    assert.equal(n.findPaintGroup()._id, n._id);
+
+    assert.deepEqual(
+      car
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [n._id, car.root()._id]
+    );
+
+    //console.log("Testing layout disconnection");
+
+    car.disconnect("f");
+    // car is now [car.root()]
+
+    assert.deepEqual(
+      ccar
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [n._id, ccar.root()._id],
+      "ccar should have itself and n as paint groups"
+    );
+
+    assert.deepEqual(
+      car
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [car.root()._id],
+      "Old root should only have itself as a paint group"
+    );
+  });
+
+  it("Layout failing test", function () {
+    let car = makeCaret();
+    car.spawnMove("f", "b");
+
+    let n: DirectionNode;
+    for (let i = 0; i < 5; ++i) {
+      let ccar = makeCaret();
+      ccar.spawnMove("f", "b");
+      n = ccar.spawnMove("i", "s");
+      ccar.crease();
+      car.connect("f", ccar.root());
+    }
+
+    assert.deepEqual(
+      car
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [n._id, car.root()._id]
     );
   });
 });

@@ -203,6 +203,7 @@ export default class DirectionNode {
 
       this.layoutChanged();
       for (let n = this._layoutNext; n !== this; n = n._layoutNext) {
+        //console.log("Setting " + n._id + " paint group to " + this._id);
         n._currentPaintGroup = this;
       }
       return;
@@ -233,6 +234,7 @@ export default class DirectionNode {
 
       const pg = this.parentNode().findPaintGroup();
       for (let n = pg._layoutNext; n !== pg; n = n._layoutNext) {
+        //console.log("Setting " + n._id + " paint group to " + pg._id);
         n._currentPaintGroup = pg;
       }
     } else {
@@ -250,9 +252,13 @@ export default class DirectionNode {
       }
       candidate = candidate.parentNode();
     }
-    return false;
+    return candidate == parent;
   }
 
+  /**
+   * Finds the first paint group to be drawn that is a descendant of this
+   * node, or this node if no descendant is a paint group.
+   */
   findFirstPaintGroup(): this {
     let candidate: this = this._paintGroupPrev;
     while (candidate !== this) {
@@ -292,6 +298,12 @@ export default class DirectionNode {
           break;
         }
         if (node._currentPaintGroup) {
+          /*console.log(
+            "Setting " +
+              this._id +
+              " paint group to " +
+              node._currentPaintGroup._id
+          );*/
           this._currentPaintGroup = node._currentPaintGroup;
           return this._currentPaintGroup;
         }
@@ -451,7 +463,7 @@ export default class DirectionNode {
     node.assignParent(this, inDirection);
 
     if (node.localPaintGroup()) {
-      //console.log("Connecting local paint group");
+      // console.log("Connecting local paint group");
       const pg = this.findPaintGroup();
       const paintGroupLast = pg._paintGroupPrev;
       const nodeFirst = node._paintGroupNext;
@@ -459,6 +471,10 @@ export default class DirectionNode {
       DirectionNode.connectPaintGroup(node, pg);
     } else {
       this.insertIntoLayout(inDirection);
+      node._currentPaintGroup = this._currentPaintGroup;
+      for (let n = node._layoutNext; n !== node; n = n._layoutNext) {
+        n._currentPaintGroup = this._currentPaintGroup;
+      }
       if (node._paintGroupNext !== node) {
         const pg = this.findPaintGroup();
         const paintGroupLast = pg._paintGroupPrev;
@@ -474,6 +490,35 @@ export default class DirectionNode {
     this.layoutWasChanged(inDirection);
 
     return node;
+  }
+
+  firstAndLastPaintGroups(): [DirectionNode, DirectionNode] {
+    const pg = this.findPaintGroup();
+    if (!pg.isRoot() && !pg.localPaintGroup()) {
+      throw new Error("Paint group returned is not a paint group");
+    }
+    let lastPaintGroup:DirectionNode = null;
+    let firstPaintGroup:DirectionNode = null;
+    for (let n = pg._paintGroupPrev; n != pg; n = n._paintGroupPrev) {
+      //console.log("First and last iteration. n=" + n._id);
+      if (!n.hasAncestor(pg)) {
+        break;
+      }
+      if (!n.hasAncestor(this)) {
+        continue;
+      }
+      if (!lastPaintGroup) {
+        firstPaintGroup = n;
+        lastPaintGroup = n;
+      } else {
+        firstPaintGroup = n;
+      }
+    }
+    if (!lastPaintGroup) {
+      firstPaintGroup = this;
+      lastPaintGroup = this;
+    }
+    return [firstPaintGroup, lastPaintGroup];
   }
 
   disconnectNode(inDirection?: Direction): this {
@@ -499,14 +544,32 @@ export default class DirectionNode {
 
     if (!disconnected.localPaintGroup()) {
       this.removeFromLayout(inDirection);
+
+      const [firstPaintGroup, lastPaintGroup] = disconnected.firstAndLastPaintGroups();
+      /*console.log(
+        "paint groups",
+        firstPaintGroup._id,
+        lastPaintGroup._id
+      );*/
+      DirectionNode.connectPaintGroup(
+        firstPaintGroup._paintGroupPrev,
+        lastPaintGroup._paintGroupNext
+      );
+      DirectionNode.connectPaintGroup(disconnected, firstPaintGroup);
+      DirectionNode.connectPaintGroup(lastPaintGroup, disconnected);
+    } else {
+      const paintGroupFirst = disconnected.findFirstPaintGroup();
+      /*console.log(
+        "First paint group",
+        paintGroupFirst._id,
+        paintGroupFirst._paintGroupPrev._id
+      );*/
+      DirectionNode.connectPaintGroup(
+        paintGroupFirst._paintGroupPrev,
+        disconnected._paintGroupNext
+      );
+      DirectionNode.connectPaintGroup(disconnected, paintGroupFirst);
     }
-    const paintGroupFirst = disconnected.findFirstPaintGroup();
-    //console.log("First paint group", paintGroupFirst._id);
-    DirectionNode.connectPaintGroup(
-      paintGroupFirst._paintGroupPrev,
-      disconnected._paintGroupNext
-    );
-    DirectionNode.connectPaintGroup(disconnected, paintGroupFirst);
 
     neighbor.node = null;
     disconnected.assignParent(null);
