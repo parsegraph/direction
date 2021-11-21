@@ -1,2 +1,5 @@
 #!/bin/bash
-npm run autotest
+while true; do
+    npm run autotest
+    inotifywait -e MODIFY src test
+done
