@@ -203,7 +203,7 @@ export default class DirectionNode {
 
       this.layoutChanged();
       for (let n = this._layoutNext; n !== this; n = n._layoutNext) {
-        //console.log("Setting " + n._id + " paint group to " + this._id);
+        // console.log("Setting " + n._id + " paint group to " + this._id);
         n._currentPaintGroup = this;
       }
       return;
@@ -234,7 +234,7 @@ export default class DirectionNode {
 
       const pg = this.parentNode().findPaintGroup();
       for (let n = pg._layoutNext; n !== pg; n = n._layoutNext) {
-        //console.log("Setting " + n._id + " paint group to " + pg._id);
+        // console.log("Setting " + n._id + " paint group to " + pg._id);
         n._currentPaintGroup = pg;
       }
     } else {
@@ -258,6 +258,8 @@ export default class DirectionNode {
   /**
    * Finds the first paint group to be drawn that is a descendant of this
    * node, or this node if no descendant is a paint group.
+   *
+   * @return {this} The first paint group to be drawn that is a child of this paint group.
    */
   findFirstPaintGroup(): this {
     let candidate: this = this._paintGroupPrev;
@@ -298,7 +300,7 @@ export default class DirectionNode {
           break;
         }
         if (node._currentPaintGroup) {
-          /*console.log(
+          /* console.log(
             "Setting " +
               this._id +
               " paint group to " +
@@ -467,6 +469,10 @@ export default class DirectionNode {
       const pg = this.findPaintGroup();
       const paintGroupLast = pg._paintGroupPrev;
       const nodeFirst = node._paintGroupNext;
+      // console.log("Node", node._id);
+      // console.log("PG", pg._id);
+      // console.log("PG Last", paintGroupLast._id);
+      // console.log("Node first", nodeFirst._id);
       DirectionNode.connectPaintGroup(paintGroupLast, nodeFirst);
       DirectionNode.connectPaintGroup(node, pg);
     } else {
@@ -497,10 +503,10 @@ export default class DirectionNode {
     if (!pg.isRoot() && !pg.localPaintGroup()) {
       throw new Error("Paint group returned is not a paint group");
     }
-    let lastPaintGroup:DirectionNode = null;
-    let firstPaintGroup:DirectionNode = null;
+    let lastPaintGroup: DirectionNode = null;
+    let firstPaintGroup: DirectionNode = null;
     for (let n = pg._paintGroupPrev; n != pg; n = n._paintGroupPrev) {
-      //console.log("First and last iteration. n=" + n._id);
+      // console.log("First and last iteration. n=" + n._id);
       if (!n.hasAncestor(pg)) {
         break;
       }
@@ -541,12 +547,16 @@ export default class DirectionNode {
     // Disconnect the node.
     const neighbor = this._neighbors[inDirection];
     const disconnected = neighbor.node as this;
+    // console.log("Disconnecting ", disconnected._id, " from ", this._id);
 
     if (!disconnected.localPaintGroup()) {
       this.removeFromLayout(inDirection);
 
-      const [firstPaintGroup, lastPaintGroup] = disconnected.firstAndLastPaintGroups();
-      /*console.log(
+      const [
+        firstPaintGroup,
+        lastPaintGroup,
+      ] = disconnected.firstAndLastPaintGroups();
+      /* console.log(
         "paint groups",
         firstPaintGroup._id,
         lastPaintGroup._id
@@ -867,7 +877,10 @@ export default class DirectionNode {
     }
     return canonicalPref;
   }
-  eachChild(visitor: (node:DirectionNode, dir:Direction)=>void, visitorThisArg?: object): void {
+  eachChild(
+    visitor: (node: DirectionNode, dir: Direction) => void,
+    visitorThisArg?: object
+  ): void {
     const dirs = this.layoutOrder();
     for (let i = 0; i < dirs.length; ++i) {
       const dir = dirs[i];
