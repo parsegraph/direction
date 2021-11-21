@@ -867,7 +867,7 @@ export default class DirectionNode {
     }
     return canonicalPref;
   }
-  eachChild(visitor: Function, visitorThisArg?: object): void {
+  eachChild(visitor: (node:DirectionNode, dir:Direction)=>void, visitorThisArg?: object): void {
     const dirs = this.layoutOrder();
     for (let i = 0; i < dirs.length; ++i) {
       const dir = dirs[i];
