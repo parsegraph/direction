@@ -887,6 +887,74 @@ describe("DirectionCaret", function () {
       [n._id, car.root()._id]
     );
   });
+
+  it("Disconnection paint group test", function () {
+    let car = makeCaret();
+    car.root()._id = "root";
+    const root = car.spawnMove("f", "b");
+    const lisp = car.spawnMove("f", "s");
+    lisp._id = "lisp";
+
+    const r = car.spawnMove("i", "s");
+    r._id = "r";
+    car.crease();
+
+    const b = car.spawnMove("i", "b");
+    b._id = "b";
+    car.crease();
+
+    const c = car.spawnMove("f", "b");
+    c._id = "c";
+    c.setPaintGroup(true);
+
+    car.spawnMove("f", "b");
+
+    r.disconnectNode(Direction.INWARD);
+    //assert.notEqual(car.root()._paintGroupNext._id, b._id, "First paint group after disconnection must not be b");
+    assert.equal(
+      car.root()._paintGroupNext._id,
+      r._id,
+      "First paint group after disconnection is r"
+    );
+    assert.equal(
+      r._paintGroupNext._id,
+      car.root()._id,
+      "R's next paint group after disconnection is root"
+    );
+
+    r.connectNode(Direction.INWARD, c);
+    assert.equal(
+      c._paintGroupNext._id,
+      r._id,
+      "C after connection should go to R"
+    );
+
+    assert.notEqual(
+      car.root()._paintGroupNext._id,
+      b._id,
+      "First paint group must not be b"
+    );
+    assert.equal(
+      car.root()._paintGroupNext._id,
+      c._id,
+      "First paint group is c"
+    );
+    assert.equal(c._paintGroupNext._id, r._id, "Second paint group is r");
+    assert.equal(
+      r._paintGroupNext._id,
+      car.root()._id,
+      "Third paint group is root"
+    );
+    root.connectNode(Direction.FORWARD, lisp);
+
+    assert.deepEqual(
+      car
+        .root()
+        .dumpPaintGroups()
+        .map((n) => n._id),
+      [c._id, r._id, car.root()._id]
+    );
+  });
 });
 
 function getLayoutNodes(node: DirectionNode) {
