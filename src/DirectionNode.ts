@@ -455,6 +455,9 @@ export default class DirectionNode {
     if (this.hasNode(inDirection)) {
       this.disconnectNode(inDirection);
     }
+    if (!node.isRoot()) {
+      node.disconnectNode();
+    }
     if (node.hasNode(reverseDirection(inDirection))) {
       node.disconnectNode(reverseDirection(inDirection));
     }
