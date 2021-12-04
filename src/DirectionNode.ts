@@ -79,11 +79,11 @@ export default class DirectionNode<Value = any> {
   _neighbors: NeighborData<Value>[];
   _parentNeighbor: NeighborData<Value>;
   _layoutState: LayoutState;
-  _layoutPrev: this;
-  _layoutNext: this;
-  _currentPaintGroup: this;
-  _paintGroupNext: this;
-  _paintGroupPrev: this;
+  _layoutPrev: DirectionNode<Value>;
+  _layoutNext: DirectionNode<Value>;
+  _currentPaintGroup: DirectionNode<Value>;
+  _paintGroupNext: DirectionNode<Value>;
+  _paintGroupPrev: DirectionNode<Value>;
   _isPaintGroup: boolean;
   _dirty: boolean;
   _layoutPreference: PreferredAxis;
@@ -182,11 +182,11 @@ export default class DirectionNode<Value = any> {
   }
 
   toString(): string {
-    return "[DirectionNode " + this._id + "]";
+    return "[DirectionNode id=" + this.id() + ", value=" + this.value() + "]";
   }
 
   needsCommit(): boolean {
-    return this._layoutState === LayoutState.NEEDS_COMMIT;
+    return this.getLayoutState() === LayoutState.NEEDS_COMMIT;
   }
 
   removeFromLayout(inDirection: Direction): void {
@@ -198,11 +198,11 @@ export default class DirectionNode<Value = any> {
     const earliestDisc: this = disconnected.findLayoutHead(disconnected);
 
     if (layoutBefore) {
-      DirectionNode.connectLayout(layoutBefore, disconnected._layoutNext);
+      DirectionNode.connectLayout(layoutBefore, disconnected.nextLayout());
     } else {
       DirectionNode.connectLayout(
-        earliestDisc._layoutPrev,
-        disconnected._layoutNext
+        earliestDisc.prevLayout(),
+        disconnected.nextLayout()
       );
     }
     DirectionNode.connectLayout(disconnected, earliestDisc);
@@ -229,11 +229,11 @@ export default class DirectionNode<Value = any> {
       DirectionNode.connectLayout(layoutBefore, nodeHead);
     } else if (layoutAfter) {
       DirectionNode.connectLayout(
-        layoutAfter.findLayoutHead()._layoutPrev,
+        layoutAfter.findLayoutHead().prevLayout(),
         nodeHead
       );
     } else {
-      DirectionNode.connectLayout(this._layoutPrev, nodeHead);
+      DirectionNode.connectLayout(this.prevLayout(), nodeHead);
     }
 
     if (layoutAfter) {
@@ -271,16 +271,16 @@ export default class DirectionNode<Value = any> {
         //   parentsPaintGroup);
 
         DirectionNode.connectPaintGroup(
-          parentsPaintGroup._paintGroupPrev,
+          parentsPaintGroup.prevPaintGroup(),
           paintGroupFirst
         );
         DirectionNode.connectPaintGroup(this, parentsPaintGroup);
       }
 
       this.layoutChanged();
-      for (let n = this._layoutNext; n !== this; n = n._layoutNext) {
-        // console.log("Setting " + n._id + " paint group to " + this._id);
-        n._currentPaintGroup = this;
+      for (let n = this.nextLayout(); n !== this; n = n.nextLayout()) {
+        // console.log("Setting " + n.id() + " paint group to " + this.id());
+        n.setCurrentPaintGroup(this);
       }
       return;
     }
@@ -298,20 +298,20 @@ export default class DirectionNode<Value = any> {
       // console.log("Node " + this +
       //   " is not a root, so adding paint groups.");
       if (paintGroupLast !== this) {
-        DirectionNode.connectPaintGroup(paintGroupLast, this._paintGroupNext);
+        DirectionNode.connectPaintGroup(paintGroupLast, this.nextPaintGroup());
       } else {
         DirectionNode.connectPaintGroup(
-          this._paintGroupPrev,
-          this._paintGroupNext
+          this.prevPaintGroup(),
+          this.nextPaintGroup()
         );
       }
       this._paintGroupNext = this;
       this._paintGroupPrev = this;
 
       const pg = this.parentNode().findPaintGroup();
-      for (let n = pg._layoutNext; n !== pg; n = n._layoutNext) {
-        // console.log("Setting " + n._id + " paint group to " + pg._id);
-        n._currentPaintGroup = pg;
+      for (let n = pg.nextLayout(); n !== pg; n = n.nextLayout()) {
+        // console.log("Setting " + n.id() + " paint group to " + pg.id());
+        n.setCurrentPaintGroup(pg);
       }
     } else {
       // Retain the paint groups for this implied paint group.
@@ -337,24 +337,24 @@ export default class DirectionNode<Value = any> {
    *
    * @return {this} The first paint group to be drawn that is a child of this paint group.
    */
-  findFirstPaintGroup(): this {
-    let candidate: this = this._paintGroupPrev;
+  findFirstPaintGroup(): DirectionNode<Value> {
+    let candidate: DirectionNode<Value> = this.prevPaintGroup();
     while (candidate !== this) {
       if (!candidate.hasAncestor(this)) {
-        return candidate._paintGroupNext;
+        return candidate.nextPaintGroup();
       }
-      candidate = candidate._paintGroupPrev;
+      candidate = candidate.prevPaintGroup();
     }
     return candidate;
   }
 
-  findLastPaintGroup(): this {
-    let candidate: this = this._layoutPrev;
+  findLastPaintGroup(): DirectionNode<Value> {
+    let candidate: DirectionNode<Value> = this.prevLayout();
     while (candidate !== this) {
       if (candidate.localPaintGroup()) {
         break;
       }
-      candidate = candidate._layoutPrev;
+      candidate = candidate.prevLayout();
     }
     return candidate;
   }
@@ -368,33 +368,33 @@ export default class DirectionNode<Value = any> {
     return this._dirty;
   }
 
-  findPaintGroup(): this {
-    if (!this._currentPaintGroup) {
+  findPaintGroup(): DirectionNode<Value> {
+    if (!this.currentPaintGroup()) {
       let node: this = this;
       while (!node.isRoot()) {
         if (node.localPaintGroup()) {
           break;
         }
-        if (node._currentPaintGroup) {
+        if (node.currentPaintGroup()) {
           /* console.log(
             "Setting " +
-              this._id +
+              this.id() +
               " paint group to " +
-              node._currentPaintGroup._id
+              node.currentPaintGroup().id()
           );*/
-          this._currentPaintGroup = node._currentPaintGroup;
-          return this._currentPaintGroup;
+          this.setCurrentPaintGroup(node.currentPaintGroup());
+          return this.currentPaintGroup();
         }
         node = node.parentNode();
       }
-      this._currentPaintGroup = node;
+      this.setCurrentPaintGroup(node);
     } else {
       // console.log("Returning cached paint group " +
-      //   this._currentPaintGroup._id +
+      //   this.currentPaintGroup().id() +
       //   " for node " +
-      //   this._id);
+      //   this.id());
     }
-    return this._currentPaintGroup;
+    return this.currentPaintGroup();
   }
 
   localPaintGroup(): boolean {
@@ -413,14 +413,14 @@ export default class DirectionNode<Value = any> {
     if (this.isRoot()) {
       return Direction.NULL;
     }
-    return reverseDirection(this._parentNeighbor.direction);
+    return reverseDirection(this.parentNeighbor().direction);
   }
 
   nodeParent(): this {
     if (this.isRoot()) {
       throw createException(NODE_IS_ROOT);
     }
-    return this._parentNeighbor.owner as this;
+    return this.parentNeighbor().owner as this;
   }
 
   parentNode(): this {
@@ -435,7 +435,7 @@ export default class DirectionNode<Value = any> {
     if (atDirection == Direction.NULL) {
       return false;
     }
-    if (this._neighbors[atDirection] && this._neighbors[atDirection].node) {
+    if (this.neighborAt(atDirection) && this.neighborAt(atDirection).node) {
       return true;
     }
     return !this.isRoot() && this.parentDirection() === atDirection;
@@ -476,21 +476,21 @@ export default class DirectionNode<Value = any> {
     );
   }
 
-  dumpPaintGroups(): this[] {
-    const pgs: this[] = [];
-    let pg: this = this;
+  dumpPaintGroups(): DirectionNode<Value>[] {
+    const pgs: DirectionNode<Value>[] = [];
+    let pg: DirectionNode<Value> = this;
     do {
-      pg = pg._paintGroupNext;
+      pg = pg.nextPaintGroup();
       pgs.push(pg);
     } while (pg !== this);
     return pgs;
   }
 
-  nodeAt(atDirection: Direction): this {
-    const n = this._neighbors[atDirection];
+  nodeAt(atDirection: Direction): DirectionNode<Value> {
+    const n = this.neighborAt(atDirection);
     if (!n) {
-      if (this._parentNeighbor && this.parentDirection() === atDirection) {
-        return this._parentNeighbor.owner as this;
+      if (this.parentNeighbor() && this.parentDirection() === atDirection) {
+        return this.parentNeighbor().owner as this;
       }
       return null;
     }
@@ -498,7 +498,7 @@ export default class DirectionNode<Value = any> {
   }
 
   static connectLayout = function (a: DirectionNode, b: DirectionNode): void {
-    // console.log("connecting " +  a._id + " to " + b._id);
+    // console.log("connecting " +  a.id() + " to " + b.id());
     a._layoutNext = b;
     b._layoutPrev = a;
   };
@@ -638,25 +638,25 @@ export default class DirectionNode<Value = any> {
     if (node.localPaintGroup()) {
       // console.log("Connecting local paint group");
       const pg = this.findPaintGroup();
-      const paintGroupLast = pg._paintGroupPrev;
-      const nodeFirst = node._paintGroupNext;
-      // console.log("Node", node._id);
-      // console.log("PG", pg._id);
-      // console.log("PG Last", paintGroupLast._id);
-      // console.log("Node first", nodeFirst._id);
+      const paintGroupLast = pg.prevPaintGroup();
+      const nodeFirst = node.nextPaintGroup();
+      // console.log("Node", node.id());
+      // console.log("PG", pg.id());
+      // console.log("PG Last", paintGroupLast.id());
+      // console.log("Node first", nodeFirst.id());
       DirectionNode.connectPaintGroup(paintGroupLast, nodeFirst);
       DirectionNode.connectPaintGroup(node, pg);
     } else {
       this.insertIntoLayout(inDirection);
-      node._currentPaintGroup = this._currentPaintGroup;
-      for (let n = node._layoutNext; n !== node; n = n._layoutNext) {
-        n._currentPaintGroup = this._currentPaintGroup;
+      node.setCurrentPaintGroup(this.currentPaintGroup());
+      for (let n = node.nextLayout(); n !== node; n = n.nextLayout()) {
+        n.setCurrentPaintGroup(this.currentPaintGroup());
       }
-      if (node._paintGroupNext !== node) {
+      if (node.nextPaintGroup() !== node) {
         const pg = this.findPaintGroup();
-        const paintGroupLast = pg._paintGroupPrev;
-        const nodeFirst = node._paintGroupNext;
-        const nodeLast = node._paintGroupPrev;
+        const paintGroupLast = pg.prevPaintGroup();
+        const nodeFirst = node.nextPaintGroup();
+        const nodeLast = node.prevPaintGroup();
         DirectionNode.connectPaintGroup(paintGroupLast, nodeFirst);
         DirectionNode.connectPaintGroup(nodeLast, pg);
         node._paintGroupPrev = node;
@@ -685,8 +685,8 @@ export default class DirectionNode<Value = any> {
     }
     let lastPaintGroup: DirectionNode = null;
     let firstPaintGroup: DirectionNode = null;
-    for (let n = pg._paintGroupPrev; n != pg; n = n._paintGroupPrev) {
-      // console.log("First and last iteration. n=" + n._id);
+    for (let n = pg.prevPaintGroup(); n != pg; n = n.prevPaintGroup()) {
+      // console.log("First and last iteration. n=" + n.id());
       if (!n.hasAncestor(pg)) {
         break;
       }
@@ -725,9 +725,9 @@ export default class DirectionNode<Value = any> {
       );
     }
     // Disconnect the node.
-    const neighbor = this._neighbors[inDirection];
+    const neighbor = this.neighborAt(inDirection);
     const disconnected = neighbor.node as this;
-    // console.log("Disconnecting ", disconnected._id, " from ", this._id);
+    // console.log("Disconnecting ", disconnected.id(), " from ", this.id());
 
     if (!disconnected.localPaintGroup()) {
       this.removeFromLayout(inDirection);
@@ -738,12 +738,12 @@ export default class DirectionNode<Value = any> {
       ] = disconnected.firstAndLastPaintGroups();
       /* console.log(
         "paint groups",
-        firstPaintGroup._id,
-        lastPaintGroup._id
+        firstPaintGroup.id(),
+        lastPaintGroup.id()
       );*/
       DirectionNode.connectPaintGroup(
-        firstPaintGroup._paintGroupPrev,
-        lastPaintGroup._paintGroupNext
+        firstPaintGroup.prevPaintGroup(),
+        lastPaintGroup.nextPaintGroup()
       );
       DirectionNode.connectPaintGroup(disconnected, firstPaintGroup);
       DirectionNode.connectPaintGroup(lastPaintGroup, disconnected);
@@ -751,12 +751,12 @@ export default class DirectionNode<Value = any> {
       const paintGroupFirst = disconnected.findFirstPaintGroup();
       /* console.log(
         "First paint group",
-        paintGroupFirst._id,
-        paintGroupFirst._paintGroupPrev._id
+        paintGroupFirst.id(),
+        paintGroupFirst.prevPaintGroup().id()
       );*/
       DirectionNode.connectPaintGroup(
-        paintGroupFirst._paintGroupPrev,
-        disconnected._paintGroupNext
+        paintGroupFirst.prevPaintGroup(),
+        disconnected.nextPaintGroup()
       );
       DirectionNode.connectPaintGroup(disconnected, paintGroupFirst);
     }
@@ -764,17 +764,16 @@ export default class DirectionNode<Value = any> {
     neighbor.node = null;
     disconnected.assignParent(null);
 
-    if (disconnected._layoutPreference === PreferredAxis.PARENT) {
-      if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
-        disconnected._layoutPreference = PreferredAxis.VERTICAL;
+    if (disconnected.getLayoutPreference() === PreferredAxis.PARENT) { if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
+        disconnected.setLayoutPreference(PreferredAxis.VERTICAL);
       } else {
-        disconnected._layoutPreference = PreferredAxis.HORIZONTAL;
+        disconnected.setLayoutPreference(PreferredAxis.HORIZONTAL);
       }
-    } else if (disconnected._layoutPreference === PreferredAxis.PERPENDICULAR) {
+    } else if (disconnected.getLayoutPreference() === PreferredAxis.PERPENDICULAR) {
       if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
-        disconnected._layoutPreference = PreferredAxis.HORIZONTAL;
+        disconnected.setLayoutPreference(PreferredAxis.HORIZONTAL);
       } else {
-        disconnected._layoutPreference = PreferredAxis.VERTICAL;
+        disconnected.setLayoutPreference(PreferredAxis.VERTICAL);
       }
     }
     this.layoutWasChanged(inDirection);
@@ -792,7 +791,7 @@ export default class DirectionNode<Value = any> {
     this.disconnectNode(givenDirection);
   }
 
-  findEarlierLayoutSibling(inDirection: Direction): this {
+  findEarlierLayoutSibling(inDirection: Direction): DirectionNode<Value> {
     let layoutBefore;
     const dirs = this.layoutOrder();
     let pastDir = false;
@@ -819,7 +818,7 @@ export default class DirectionNode<Value = any> {
     return layoutBefore;
   }
 
-  findLaterLayoutSibling(inDirection: Direction): this {
+  findLaterLayoutSibling(inDirection: Direction): DirectionNode<Value> {
     let layoutAfter;
     const dirs = this.layoutOrder();
     let pastDir = false;
@@ -847,8 +846,8 @@ export default class DirectionNode<Value = any> {
     return layoutAfter;
   }
 
-  findLayoutHead(excludeThisNode?: this): this {
-    let deeplyLinked: this = this;
+  findLayoutHead(excludeThisNode?: this): DirectionNode<Value> {
+    let deeplyLinked: DirectionNode<Value> = this;
     let foundOne;
     while (true) {
       foundOne = false;
@@ -890,6 +889,10 @@ export default class DirectionNode<Value = any> {
     return given;
   }
 
+  getLayoutPreference(): PreferredAxis {
+    return this._layoutPreference;
+  }
+
   setLayoutPreference(given: PreferredAxis): void {
     const b =
       this.parentDirection() === Direction.BACKWARD
@@ -923,8 +926,8 @@ export default class DirectionNode<Value = any> {
       if (!firstHorz || !firstVert) {
         return;
       }
-      const aa = firstHorz._layoutPrev;
-      const dd = lastVert._layoutNext;
+      const aa = firstHorz.prevLayout();
+      const dd = lastVert.nextLayout();
       DirectionNode.connectLayout(aa, firstVert);
       DirectionNode.connectLayout(lastHorz, dd);
       DirectionNode.connectLayout(lastVert, firstHorz);
@@ -934,14 +937,14 @@ export default class DirectionNode<Value = any> {
       if (!firstHorz || !firstVert) {
         return;
       }
-      const aa = firstHorz._layoutPrev;
-      const dd = lastVert._layoutNext;
-      // console.log("aa=" + aa._id);
-      // console.log("dd=" + dd._id);
-      // console.log("firstHorz=" + firstHorz._id);
-      // console.log("lastVert=" + lastVert._id);
-      // console.log("lastHorz=" + lastHorz._id);
-      // console.log("firstVert=" + firstVert._id);
+      const aa = firstHorz.prevLayout();
+      const dd = lastVert.nextLayout();
+      // console.log("aa=" + aa.id());
+      // console.log("dd=" + dd.id());
+      // console.log("firstHorz=" + firstHorz.id());
+      // console.log("lastVert=" + lastVert.id());
+      // console.log("lastHorz=" + lastHorz.id());
+      // console.log("firstVert=" + firstVert.id());
       DirectionNode.connectLayout(aa, firstHorz);
       DirectionNode.connectLayout(lastVert, dd);
       DirectionNode.connectLayout(lastHorz, firstVert);
@@ -953,7 +956,7 @@ export default class DirectionNode<Value = any> {
       ) {
         throw createException(BAD_LAYOUT_PREFERENCE);
       }
-      if (this._layoutPreference === given) {
+      if (this.getLayoutPreference() === given) {
         return;
       }
       if (given === PreferredAxis.VERTICAL) {
@@ -997,8 +1000,8 @@ export default class DirectionNode<Value = any> {
   layoutOrder(): Direction[] {
     if (this.isRoot()) {
       if (
-        this._layoutPreference === PreferredAxis.HORIZONTAL ||
-        this._layoutPreference === PreferredAxis.PERPENDICULAR
+        this.getLayoutPreference() === PreferredAxis.HORIZONTAL ||
+        this.getLayoutPreference() === PreferredAxis.PERPENDICULAR
       ) {
         return HORIZONTAL_ORDER;
       }
@@ -1012,7 +1015,7 @@ export default class DirectionNode<Value = any> {
       return HORIZONTAL_ORDER;
     }
     // console.log("PREFER PARALLEL TO PARENT: " +
-    //   namePreferredAxis(this._layoutPreference));
+    //   namePreferredAxis(this.getLayoutPreference()));
     // Parallel preference.
     if (getDirectionAxis(this.parentDirection()) === Axis.HORIZONTAL) {
       return HORIZONTAL_ORDER;
@@ -1028,8 +1031,8 @@ export default class DirectionNode<Value = any> {
 
     // Convert the layout preference to either preferring the parent or
     // the perpendicular axis.
-    let canonicalPref: PreferredAxis = this._layoutPreference;
-    switch (this._layoutPreference) {
+    let canonicalPref: PreferredAxis = this.getLayoutPreference();
+    switch (this.getLayoutPreference()) {
       case PreferredAxis.HORIZONTAL: {
         if (getDirectionAxis(this.parentDirection()) === Axis.HORIZONTAL) {
           canonicalPref = PreferredAxis.PARENT;
@@ -1048,7 +1051,7 @@ export default class DirectionNode<Value = any> {
       }
       case PreferredAxis.PERPENDICULAR:
       case PreferredAxis.PARENT:
-        canonicalPref = this._layoutPreference;
+        canonicalPref = this.getLayoutPreference();
         break;
       case PreferredAxis.NULL:
         throw createException(BAD_LAYOUT_PREFERENCE);
@@ -1085,10 +1088,18 @@ export default class DirectionNode<Value = any> {
   }
 
   invalidateLayout(): void {
-    this._layoutState = LayoutState.NEEDS_COMMIT;
-    this._currentPaintGroup = null;
+    this.setLayoutState(LayoutState.NEEDS_COMMIT);
+    this.setCurrentPaintGroup(null);
 
     this.findPaintGroup().markDirty();
+  }
+
+  getLayoutState(): LayoutState {
+    return this._layoutState;
+  }
+
+  setLayoutState(state:LayoutState) {
+    this._layoutState = state;
   }
 
   layoutWasChanged(changeDirection?: Direction): void {
@@ -1106,7 +1117,7 @@ export default class DirectionNode<Value = any> {
     let node: this = this;
     while (node !== null) {
       // console.log("Node " + node + " has layout changed");
-      const oldLayoutState = node._layoutState;
+      const oldLayoutState = node.getLayoutState();
 
       // Set the needs layout flag.
       node.invalidateLayout();
@@ -1139,22 +1150,22 @@ export default class DirectionNode<Value = any> {
     );
   }
 
-  forEachNode(func: Function): void {
-    let node = this;
+  forEachNode(func: (node:DirectionNode<Value>)=>void): void {
+    let node:DirectionNode<Value> = this;
     do {
       func(node);
-      node = node._layoutPrev;
+      node = node.prevLayout();
     } while (node !== this);
   }
 
-  forEachPaintGroup(func: Function): any {
-    let paintGroup = this;
+  forEachPaintGroup(func: (node:DirectionNode<Value>)=>void): void {
+    let paintGroup:DirectionNode<Value> = this;
     do {
       if (!paintGroup.localPaintGroup() && !paintGroup.isRoot()) {
         throw createException(NOT_PAINT_GROUP);
       }
       func(paintGroup);
-      paintGroup = paintGroup._paintGroupPrev;
+      paintGroup = paintGroup.prevPaintGroup();
     } while (paintGroup !== this);
   }
 
@@ -1166,7 +1177,7 @@ export default class DirectionNode<Value = any> {
       // Clear all children.
       neighbor.node = null;
     }, this);
-    this._layoutState = LayoutState.NULL;
+    this.setLayoutState(LayoutState.NULL);
   }
 
   value(): Value {
@@ -1175,7 +1186,7 @@ export default class DirectionNode<Value = any> {
 
   setValue(newValue: Value, report?: boolean): void {
     // console.log("Setting value to ", newValue);
-    const orig = this._value;
+    const orig = this.value();
     if (orig === newValue) {
       return;
     }
@@ -1209,6 +1220,38 @@ export default class DirectionNode<Value = any> {
     }
     this._changeListener = listener;
     this._changeListenerThisArg = thisArg;
-    // console.log("Set change listener for node " + this._id);
+    // console.log("Set change listener for node " + this.id());
+  }
+
+  id(): string | number {
+    return this._id;
+  }
+
+  setId(id:string|number) {
+    this._id = id;
+  }
+
+  nextLayout():DirectionNode<Value> {
+    return this._layoutNext;
+  }
+
+  prevLayout():DirectionNode<Value> {
+    return this._layoutPrev;
+  }
+
+  nextPaintGroup():DirectionNode<Value> {
+    return this._paintGroupNext;
+  }
+
+  prevPaintGroup():DirectionNode<Value> {
+    return this._paintGroupPrev;
+  }
+
+  setCurrentPaintGroup(pg:DirectionNode<Value>) {
+    this._currentPaintGroup = pg;
+  }
+
+  currentPaintGroup():DirectionNode<Value> {
+    return this._currentPaintGroup;
   }
 }
