@@ -9,7 +9,7 @@ import {
 import createException, { NO_NODE_FOUND,
 } from "./Exception";
 import generateID from "parsegraph-generateid";
-import DirectionNode from "./DirectionNode";
+import DirectionNode, {ChangeListener} from "./DirectionNode";
 import PreferredAxis from "./PreferredAxis";
 import NodePalette from "./NodePalette";
 import Fit from "./Fit";
@@ -394,5 +394,9 @@ export default class DirectionCaret<Value> {
     if (this.node().hasNode(inDirection)) {
       return this.node().nodeAt(inDirection);
     }
+  }
+
+  onChange(changeListener: ChangeListener, thisArg?: object): void {
+    this.node().setChangeListener(changeListener, thisArg);
   }
 }

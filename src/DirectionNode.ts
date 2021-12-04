@@ -70,7 +70,7 @@ export class NeighborData<Value> {
 
 let nodeCount: number = 0;
 
-export type ChangeListener<Value> = (value: Value, orig?: Value) => void;
+export type ChangeListener<Value = any> = (value: Value, orig?: Value) => void;
 
 export default class DirectionNode<Value = any> {
   _rightToLeft: boolean;
