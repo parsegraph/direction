@@ -1,17 +1,13 @@
-import Direction, {
-  readDirection,
-  reverseDirection,
-} from './Direction';
-import {
-  isVerticalDirection,
-  getDirectionAxis,
-} from "./Axis";
-import createException, { NO_NODE_FOUND,
-} from "./Exception";
+import Direction, { readDirection, reverseDirection } from "./Direction";
+import { isVerticalDirection, getDirectionAxis } from "./Axis";
+import createException, { NO_NODE_FOUND } from "./Exception";
 import generateID from "parsegraph-generateid";
-import DirectionNode, {ChangeListener} from "./DirectionNode";
+import DirectionNode, { ChangeListener } from "./DirectionNode";
 import PreferredAxis from "./PreferredAxis";
-import NodePalette from "./NodePalette";
+import NodePalette, {
+  BasicNodePalette,
+  InplaceNodePalette,
+} from "./NodePalette";
 import Fit from "./Fit";
 import AxisOverlap, { readAxisOverlap } from "./AxisOverlap";
 import Alignment, { readAlignment } from "./Alignment";
@@ -23,13 +19,16 @@ export default class DirectionCaret<Value> {
   _nodeRoot: DirectionNode<Value>;
   _nodes: DirectionNode<Value>[];
   _savedNodes: { [key: string]: DirectionNode<Value> };
-  _palette: NodePalette<Value>;
+  _palette: InplaceNodePalette<Value>;
 
-  constructor(given: any = null, palette: NodePalette<Value> = null) {
+  constructor(
+    given: any = null,
+    palette: InplaceNodePalette<Value> | NodePalette<Value> = null
+  ) {
     // A mapping of nodes to their saved names.
     this._savedNodes = null;
 
-    this._palette = palette;
+    this.setPalette(palette);
 
     this._nodeRoot = this.doSpawn(given) as DirectionNode<Value>;
 
@@ -37,31 +36,37 @@ export default class DirectionCaret<Value> {
     this._nodes = [this._nodeRoot];
   }
 
-  setPalette(palette: NodePalette<Value>) {
-    this._palette = palette;
+  setPalette(palette: InplaceNodePalette<Value> | NodePalette<Value> = null) {
+    if (typeof palette === "function") {
+      this._palette = new BasicNodePalette(palette);
+    } else {
+      this._palette = palette as InplaceNodePalette<Value>;
+    }
   }
 
-  palette(): NodePalette<Value> {
+  palette(): InplaceNodePalette<Value> {
     return this._palette;
   }
 
   doSpawn(given?: any): DirectionNode<Value> {
     if (this.palette()) {
-      return new DirectionNode(this.palette()(given));
+      return this.palette().spawn(given);
     }
     return given instanceof DirectionNode
       ? (given as DirectionNode<Value>)
-      : new DirectionNode<Value>(given)
+      : new DirectionNode<Value>(given);
   }
 
   doReplace(node: DirectionNode<Value>, given?: any): void {
     if (this.palette()) {
-      node.setValue(this.palette()(given));
+      this.palette().replace(node, given);
       return;
     }
-    node.setValue(given instanceof DirectionNode
-      ? (given as DirectionNode<Value>).value()
-      : given);
+    node.setValue(
+      given instanceof DirectionNode
+        ? (given as DirectionNode<Value>).value()
+        : given
+    );
   }
 
   clone(): DirectionCaret<Value> {
