@@ -93,7 +93,7 @@ export default class DirectionNode<Value = any> {
   _changeListener: ChangeListener<Value>;
   _changeListenerThisArg: object;
 
-  constructor(fromNode?: DirectionNode, parentDirection?: Direction) {
+  constructor(initialVal: Value = null) {
     this._id = nodeCount++;
 
     this._nodeFit = Fit.LOOSE;
@@ -118,19 +118,12 @@ export default class DirectionNode<Value = any> {
     this._paintGroupNext = this;
     this._paintGroupPrev = this;
 
-    this._value = null;
+    this._value = initialVal;
     this._changeListener = null;
     this._changeListenerThisArg = null;
 
-    // Check if a parent node was provided.
-    if (fromNode != null) {
-      // A parent node was provided; this node is a child.
-      fromNode.connectNode(parentDirection, this);
-      this._layoutPreference = PreferredAxis.PERPENDICULAR;
-    } else {
-      // No parent was provided; this node is a root.
-      this._layoutPreference = PreferredAxis.HORIZONTAL;
-    }
+    // No parent was provided; this node is a root.
+    this._layoutPreference = PreferredAxis.HORIZONTAL;
   }
 
   x(): number {

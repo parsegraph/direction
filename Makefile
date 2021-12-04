@@ -7,7 +7,6 @@ SCRIPT_FILES = \
 	src/turn.ts \
 	src/DirectionCaret.ts \
 	src/DirectionNode.ts \
-	src/DirectionNodePalette.ts \
 	src/Exception.ts \
 	src/LayoutState.ts \
 	src/NodePalette.ts \

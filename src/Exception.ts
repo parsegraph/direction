@@ -19,7 +19,6 @@ export const NODE_DIRTY = 17;
 export const NO_OUTWARD_CONNECT = 18;
 export const NO_PARENT_CONNECT = 19;
 export const NOT_PAINT_GROUP = 20;
-export const REPLACE_NOT_SUPPORTED = 21;
 
 export function nameStatus(given: number) {
   switch (given) {
@@ -65,8 +64,6 @@ export function nameStatus(given: number) {
       return "Cannot connect a node in the parent's direction";
     case NOT_PAINT_GROUP:
       return "Paint group returned is not a paint group";
-    case REPLACE_NOT_SUPPORTED:
-      return "Replace of node with given type is not supported"
   }
   throw createException(BAD_STATUS, given);
 }

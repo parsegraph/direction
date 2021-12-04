@@ -12,19 +12,11 @@ import {
   INWARD,
   PreferredAxis,
   namePreferredAxis,
-  NodePalette,
 } from "../dist/parsegraph-direction";
 import { elapsed } from "parsegraph-timing";
 
-class DirectionNodePalette extends NodePalette {
-  spawn(): DirectionNode {
-    return new DirectionNode();
-  }
-  replace() {}
-}
-
 function makeCaret() {
-  return new DirectionCaret(new DirectionNodePalette(), null);
+  return new DirectionCaret();
 }
 
 describe("Package", function () {

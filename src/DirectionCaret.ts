@@ -7,7 +7,6 @@ import {
   getDirectionAxis,
 } from "./Axis";
 import createException, { NO_NODE_FOUND,
-  REPLACE_NOT_SUPPORTED,
 } from "./Exception";
 import generateID from "parsegraph-generateid";
 import DirectionNode from "./DirectionNode";
@@ -26,7 +25,7 @@ export default class DirectionCaret<Value> {
   _savedNodes: { [key: string]: DirectionNode<Value> };
   _palette: NodePalette<Value>;
 
-  constructor(palette: NodePalette<Value>, given: any) {
+  constructor(given: any = null, palette: NodePalette<Value> = null) {
     // A mapping of nodes to their saved names.
     this._savedNodes = null;
 
@@ -48,18 +47,21 @@ export default class DirectionCaret<Value> {
 
   doSpawn(given?: any): DirectionNode<Value> {
     if (this._palette) {
-      return this._palette.spawn(given);
+      return new DirectionNode(this._palette.spawn(given));
     }
     return given instanceof DirectionNode
       ? (given as DirectionNode<Value>)
-      : new DirectionNode<Value>()
+      : new DirectionNode<Value>(given)
   }
 
   doReplace(node: DirectionNode<Value>, given?: any): void {
     if (this._palette) {
-      return this._palette.replace(node, given);
+      node.setValue(this._palette.spawn(given));
+      return;
     }
-    throw createException(REPLACE_NOT_SUPPORTED);
+    node.setValue(given instanceof DirectionNode
+      ? (given as DirectionNode<Value>).value()
+      : given);
   }
 
   clone(): DirectionCaret<Value> {
