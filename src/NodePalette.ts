@@ -1,6 +1,6 @@
 import DirectionNode from "./DirectionNode";
 
-export default abstract class NodePalette<Value> {
+export default abstract class NodePalette<Value = any> {
   abstract spawn(given?: any): DirectionNode<Value>;
   abstract replace(node: DirectionNode<Value>, given?: any): void;
 }
