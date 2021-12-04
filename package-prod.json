@@ -1,6 +1,6 @@
 {
     "name": "parsegraph-direction",
-    "version": "1.6.3",
+    "version": "1.7.0",
     "description": "direction",
     "main": "dist/parsegraph-direction.js",
     "types": "dist/parsegraph-direction.d.ts",
