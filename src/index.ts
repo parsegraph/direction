@@ -1,5 +1,5 @@
 import DirectionNode, { NeighborData } from "./DirectionNode";
-import DirectionCaret from "./DirectionCaret";
+import DirectionCaret, { SHRINK_SCALE } from "./DirectionCaret";
 
 import NodePalette from "./NodePalette";
 
@@ -109,4 +109,5 @@ export {
   Fit,
   nameFit,
   readFit,
+  SHRINK_SCALE
 };
