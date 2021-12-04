@@ -13,32 +13,40 @@ import PreferredAxis, {
 
 import Direction, {
   NUM_DIRECTIONS,
-  Axis,
   HORIZONTAL_ORDER,
   VERTICAL_ORDER,
   readDirection,
   nameDirection,
   isDirection,
   reverseDirection,
-  turnLeft,
-  turnRight,
-  turnNegative,
-  turnPositive,
   isCardinalDirection,
+  forEachCardinalDirection,
+  alternateDirection,
+} from './Direction';
+
+import Axis, {
   nameAxis,
   getDirectionAxis,
   isVerticalDirection,
   isHorizontalDirection,
   getPerpendicularAxis,
+  isPositiveDirection,
   getPositiveDirection,
   getNegativeDirection,
-  forEachCardinalDirection,
-  isPositiveDirection,
   isNegativeDirection,
   directionSign,
-  alternateDirection,
-} from "./definition";
-import DefaultDirectionNode from "./DefaultDirectionNode";
+} from './Axis';
+
+import {
+  turnLeft,
+  turnRight,
+  turnNegative,
+  turnPositive,
+} from './turn';
+
+import Alignment, { nameAlignment, readAlignment } from "./Alignment";
+import AxisOverlap, { nameAxisOverlap, readAxisOverlap } from "./AxisOverlap";
+import Fit, { nameFit, readFit } from "./Fit";
 
 export default Direction;
 
@@ -94,5 +102,13 @@ export {
   alternateDirection,
   NodePalette,
   DirectionNodePalette,
-  DefaultDirectionNode,
+  Alignment,
+  nameAlignment,
+  readAlignment,
+  AxisOverlap,
+  nameAxisOverlap,
+  readAxisOverlap,
+  Fit,
+  nameFit,
+  readFit,
 };

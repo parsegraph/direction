@@ -41,22 +41,50 @@ describe("DirectionNode", function () {
     assert(node.isRoot());
   });
 
+  it("can be made directly", () => {
+    const node = new DirectionNode();
+    expect(node).to.be.instanceof(DirectionNode);
+    assert(node.isRoot());
+  });
+
+  it("can have its value set", () => {
+    const node = new DirectionNode();
+    node.setValue("No time");
+    assert.equal(node.value(), "No time");
+    let f = "";
+    node.setChangeListener((v, o) => {
+      f = v + " " + o;
+    });
+    node.setValue(42);
+    assert.equal(
+      f,
+      "42 No time",
+      "Change listener gets both new and original value"
+    );
+  });
+
   it("PaintGroup sanity", function () {
     // Spawn the graph.
     const caret = makeCaret();
 
     const node = caret.node();
-    if (node._paintGroupNext !== node) {
-      throw new Error("Node's paint group next is not itself");
-    }
+    assert.equal(
+      node._paintGroupNext,
+      node,
+      "Node's paint group next is not itself"
+    );
     const creased = caret.spawnMove(FORWARD);
-    if (creased._paintGroupNext !== creased._paintGroupNext) {
-      throw new Error("Child's paint group next is not null");
-    }
+    assert.equal(
+      creased._paintGroupNext,
+      creased._paintGroupNext,
+      "Child's paint group next is not null"
+    );
     caret.crease();
-    if (creased._paintGroupNext !== node) {
-      throw new Error("Child's paint group next is not node ");
-    }
+    assert.equal(
+      creased._paintGroupNext,
+      node,
+      "Child's paint group next is not node "
+    );
   });
 
   it("Viewport - Block with forward creased bud", function () {

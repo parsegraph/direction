@@ -1,10 +1,9 @@
-import DefaultDirectionNode from "./DefaultDirectionNode";
 import DirectionNode from "./DirectionNode";
 import NodePalette from "./NodePalette";
 
-export default class DirectionNodePalette extends NodePalette<DirectionNode> {
+export default class DirectionNodePalette<Value> extends NodePalette<Value> {
   spawn(): DirectionNode {
-    return new DefaultDirectionNode();
+    return new DirectionNode();
   }
   replace(): void {}
 }

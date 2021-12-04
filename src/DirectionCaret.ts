@@ -1,64 +1,73 @@
-import {
-  Direction,
+import Direction, {
   readDirection,
   reverseDirection,
+} from './Direction';
+import {
   isVerticalDirection,
   getDirectionAxis,
-} from "./definition";
-import createException, { NO_NODE_FOUND } from "./Exception";
+} from "./Axis";
+import createException, { NO_NODE_FOUND,
+  REPLACE_NOT_SUPPORTED,
+} from "./Exception";
 import generateID from "parsegraph-generateid";
 import DirectionNode from "./DirectionNode";
 import PreferredAxis from "./PreferredAxis";
 import NodePalette from "./NodePalette";
+import Fit from "./Fit";
+import AxisOverlap, { readAxisOverlap } from "./AxisOverlap";
+import Alignment, { readAlignment } from "./Alignment";
 
-export default class DirectionCaret<T extends DirectionNode> {
-  _nodeRoot: T;
-  _nodes: T[];
-  _savedNodes: { [key: string]: T };
-  _palette: NodePalette<T>;
+// The scale at which shrunk nodes are shrunk.
+export const SHRINK_SCALE = 0.85;
 
-  constructor(palette: NodePalette<T>, given: any) {
+export default class DirectionCaret<Value> {
+  _nodeRoot: DirectionNode<Value>;
+  _nodes: DirectionNode<Value>[];
+  _savedNodes: { [key: string]: DirectionNode<Value> };
+  _palette: NodePalette<Value>;
+
+  constructor(palette: NodePalette<Value>, given: any) {
     // A mapping of nodes to their saved names.
     this._savedNodes = null;
 
     this._palette = palette;
 
-    this._nodeRoot = this.doSpawn(given) as T;
+    this._nodeRoot = this.doSpawn(given) as DirectionNode<Value>;
 
     // Stack of nodes.
     this._nodes = [this._nodeRoot];
   }
 
-  setPalette(palette: NodePalette<T>) {
+  setPalette(palette: NodePalette<Value>) {
     this._palette = palette;
   }
 
-  palette(): NodePalette<T> {
+  palette(): NodePalette<Value> {
     return this._palette;
   }
 
-  doSpawn(given?: any): T {
+  doSpawn(given?: any): DirectionNode<Value> {
     if (this._palette) {
       return this._palette.spawn(given);
     }
     return given instanceof DirectionNode
-      ? (given as T)
-      : (new DirectionNode() as T);
+      ? (given as DirectionNode<Value>)
+      : new DirectionNode<Value>()
   }
 
-  doReplace(node: T, given?: any): void {
+  doReplace(node: DirectionNode<Value>, given?: any): void {
     if (this._palette) {
       return this._palette.replace(node, given);
     }
-    throw new Error(`Replace of ${node} with ${given} not supported`);
+    throw createException(REPLACE_NOT_SUPPORTED);
   }
 
-  clone(): DirectionCaret<T> {
-    const car = new DirectionCaret<T>(this.palette(), this.node());
+  clone(): DirectionCaret<Value> {
+    const car = new DirectionCaret<Value>(this.palette(), this.node());
     return car;
   }
 
-  node(): T {
+  node(): DirectionNode<Value> {
     if (this._nodes.length === 0) {
       throw createException(NO_NODE_FOUND);
     }
@@ -70,7 +79,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     return this.node().hasNode(inDirection);
   }
 
-  connect(inDirection: Direction | string, node: T): T {
+  connect(inDirection: Direction | string, node: DirectionNode<Value>): DirectionNode<Value> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
@@ -79,7 +88,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     return node;
   }
 
-  connectMove(inDirection: Direction | string, node: T): T {
+  connectMove(inDirection: Direction | string, node: DirectionNode<Value>): DirectionNode<Value> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
@@ -88,7 +97,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     return node;
   }
 
-  disconnect(inDirection?: Direction | string): T {
+  disconnect(inDirection?: Direction | string): DirectionNode<Value> {
     if (arguments.length > 0) {
       // Interpret the given direction for ease-of-use.
       inDirection = readDirection(inDirection);
@@ -108,7 +117,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
-    let node: T;
+    let node: DirectionNode<Value>;
     if (arguments.length === 0) {
       node = this.node();
     } else {
@@ -125,7 +134,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
-    let node: T;
+    let node: DirectionNode<Value>;
     if (arguments.length === 0) {
       node = this.node();
     } else {
@@ -140,7 +149,7 @@ export default class DirectionCaret<T extends DirectionNode> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
-    let node: T;
+    let node: DirectionNode<Value>;
     if (arguments.length === 0) {
       node = this.node();
     } else {
@@ -161,7 +170,7 @@ export default class DirectionCaret<T extends DirectionNode> {
 
   move(toDirection: Direction | string): void {
     toDirection = readDirection(toDirection);
-    const dest: T = this.node().nodeAt(toDirection);
+    const dest: DirectionNode<Value> = this.node().nodeAt(toDirection);
     if (!dest) {
       throw createException(NO_NODE_FOUND);
     }
@@ -195,13 +204,11 @@ export default class DirectionCaret<T extends DirectionNode> {
 
   restore(id: string): void {
     if (!this._savedNodes) {
-      throw new Error(
-        "No saved nodes were found for the provided ID '" + id + "'"
-      );
+      throw createException(NO_NODE_FOUND);
     }
-    const loadedNode: T = this._savedNodes[id];
+    const loadedNode: DirectionNode<Value> = this._savedNodes[id];
     if (loadedNode == null) {
-      throw new Error("No node found for the provided ID '" + id + "'");
+      throw createException(NO_NODE_FOUND);
     }
     this._nodes[this._nodes.length - 1] = loadedNode;
   }
@@ -249,8 +256,84 @@ export default class DirectionCaret<T extends DirectionNode> {
   /*
    * Returns the initially provided node.
    */
-  root(): T {
+  root(): DirectionNode<Value> {
     return this._nodeRoot;
+  }
+
+  align(
+    inDirection: Direction | string,
+    newAlignmentMode: Alignment | string
+  ): void {
+    // Interpret the arguments.
+    inDirection = readDirection(inDirection);
+    newAlignmentMode = readAlignment(newAlignmentMode);
+
+    this.node().setNodeAlignmentMode(inDirection, newAlignmentMode);
+    if (newAlignmentMode != Alignment.NONE) {
+      this.node().setNodeFit(Fit.EXACT);
+    }
+  }
+
+  overlapAxis(...args: any[]): void {
+    if (args.length === 0) {
+      this.node().setAxisOverlap(AxisOverlap.ALLOWED);
+      return;
+    }
+    if (args.length === 1) {
+      this.node().setAxisOverlap(readAxisOverlap(args[0]));
+      return;
+    }
+    const inDirection: Direction = readDirection(args[0]);
+    const newAxisOverlap: AxisOverlap = readAxisOverlap(args[1]);
+    this.node().setAxisOverlap(inDirection, newAxisOverlap);
+  }
+
+  axisOverlap(...args: any[]): void {
+    return this.overlapAxis(...args);
+  }
+
+  shrink(inDirection?: Direction | string): void {
+    let node = this.node();
+    if (arguments.length > 0) {
+      node = node.nodeAt(readDirection(inDirection));
+    }
+    if (node) {
+      node.setScale(SHRINK_SCALE);
+    }
+  }
+
+  grow(inDirection?: Direction | string): void {
+    let node = this.node();
+    if (arguments.length > 0) {
+      node = node.nodeAt(readDirection(inDirection));
+    }
+    if (node) {
+      node.setScale(1.0);
+    }
+  }
+
+  fitExact(inDirection?: Direction | string): void {
+    let node = this.node();
+    if (arguments.length > 0) {
+      node = node.nodeAt(readDirection(inDirection));
+    }
+    node.setNodeFit(Fit.EXACT);
+  }
+
+  fitLoose(inDirection?: Direction | string): void {
+    let node = this.node();
+    if (arguments.length > 0) {
+      node = node.nodeAt(readDirection(inDirection));
+    }
+    node.setNodeFit(Fit.LOOSE);
+  }
+
+  fitNaive(inDirection?: Direction | string): void {
+    let node = this.node();
+    if (arguments.length > 0) {
+      node = node.nodeAt(readDirection(inDirection));
+    }
+    node.setNodeFit(Fit.NAIVE);
   }
 
   // ////////////////////////////////////////////////////////////////////////////
@@ -259,22 +342,34 @@ export default class DirectionCaret<T extends DirectionNode> {
   //
   // ////////////////////////////////////////////////////////////////////////////
 
-  spawn(inDirection: Direction | string, newType?: any): T {
+  spawn(inDirection: Direction | string, newType?: any,
+    newAlignmentMode?: Alignment | string
+       ): DirectionNode<Value> {
     // Interpret the given direction and type for ease-of-use.
     inDirection = readDirection(inDirection);
 
     // Spawn a node in the given direction.
-    const created: T = this.doSpawn(newType);
+    const created = this.doSpawn(newType);
     this.node().connectNode(inDirection, created);
     created.setLayoutPreference(PreferredAxis.PERPENDICULAR);
+    created.setNodeFit(this.node().nodeFit());
+
+    // Use the given alignment mode.
+    if (newAlignmentMode !== undefined) {
+      newAlignmentMode = readAlignment(newAlignmentMode);
+      this.align(inDirection, newAlignmentMode);
+      if (newAlignmentMode !== Alignment.NONE) {
+        this.node().setNodeFit(Fit.EXACT);
+      }
+    }
 
     return created;
   }
 
   replace(...args: any[]): void {
     // Retrieve the arguments.
-    let node: T = this.node();
-    let withType: T | string;
+    let node = this.node();
+    let withType: DirectionNode<Value> | string;
     if (args.length > 1) {
       node = node.nodeAt(readDirection(args[0]));
       withType = args[1];
@@ -284,13 +379,15 @@ export default class DirectionCaret<T extends DirectionNode> {
     this.doReplace(node, withType);
   }
 
-  spawnMove(inDirection: Direction | string, newType?: T | string): T {
-    const created: T = this.spawn(inDirection, newType);
+  spawnMove(inDirection: Direction | string, newType?: DirectionNode<Value> | string,
+    newAlignmentMode?: Alignment | string
+           ): DirectionNode<Value> {
+    const created = this.spawn(inDirection, newType, newAlignmentMode);
     this.move(inDirection);
     return created;
   }
 
-  at(inDirection: Direction | string): T {
+  at(inDirection: Direction | string): DirectionNode<Value> {
     inDirection = readDirection(inDirection);
     if (this.node().hasNode(inDirection)) {
       return this.node().nodeAt(inDirection);

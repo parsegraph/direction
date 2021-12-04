@@ -4,41 +4,80 @@ import createException, {
   BAD_AXIS,
   NODE_IS_ROOT,
   CANNOT_AFFECT_PARENT,
+  NO_NODE_FOUND,
+  NO_OUTWARD_CONNECT,
+  NO_PARENT_CONNECT,
+  NOT_PAINT_GROUP
 } from "./Exception";
 
-import {
-  Axis,
+import Axis, {
   getNegativeDirection,
   getPositiveDirection,
-  Direction,
+  getDirectionAxis,
+} from './Axis';
+
+import Direction, {
+  isCardinalDirection,
   NUM_DIRECTIONS,
   reverseDirection,
-  nameDirection,
-  getDirectionAxis,
   HORIZONTAL_ORDER,
   VERTICAL_ORDER,
-} from "./definition";
+} from './Direction';
+
 import LayoutState from "./LayoutState";
-import PreferredAxis, { namePreferredAxis } from "./PreferredAxis";
+import PreferredAxis from "./PreferredAxis";
+import Alignment from "./Alignment";
+import AxisOverlap from "./AxisOverlap";
+import Fit from "./Fit";
 
-export class NeighborData {
-  owner: DirectionNode;
+export class NeighborData<Value> {
+  owner: DirectionNode<Value>;
   direction: Direction;
-  node: DirectionNode;
+  node: DirectionNode<Value>;
+  alignmentMode: Alignment;
+  allowAxisOverlap: AxisOverlap;
+  alignmentOffset: number;
+  separation: number;
+  lineLength: number;
+  xPos: number;
+  yPos: number;
 
-  constructor(owner: DirectionNode, dir: Direction) {
+  constructor(owner: DirectionNode<Value>, dir: Direction) {
     this.owner = owner;
     this.direction = dir;
     this.node = null;
+    this.alignmentMode = Alignment.NULL;
+    this.alignmentOffset = 0;
+    this.allowAxisOverlap = AxisOverlap.DEFAULT;
+    this.separation = 0;
+    this.lineLength = 0;
+    this.xPos = null;
+    this.yPos = null;
+  }
+
+  setNode(node: DirectionNode<Value>) {
+    this.node = node;
+  }
+
+  getNode(): DirectionNode<Value> {
+    return this.node;
+  }
+
+  getOwner(): DirectionNode<Value> {
+    return this.owner;
   }
 }
 
 let nodeCount: number = 0;
 
-export default class DirectionNode {
+export type ChangeListener<Value> = (value: Value, orig?: Value) => void;
+
+export default class DirectionNode<Value = any> {
+  _rightToLeft: boolean;
   _id: string | number;
-  _neighbors: NeighborData[];
-  _parentNeighbor: NeighborData;
+  _nodeFit: Fit;
+  _neighbors: NeighborData<Value>[];
+  _parentNeighbor: NeighborData<Value>;
   _layoutState: LayoutState;
   _layoutPrev: this;
   _layoutNext: this;
@@ -48,12 +87,20 @@ export default class DirectionNode {
   _isPaintGroup: boolean;
   _dirty: boolean;
   _layoutPreference: PreferredAxis;
+  _scale: number;
+
+  _value: Value;
+  _changeListener: ChangeListener<Value>;
+  _changeListenerThisArg: object;
 
   constructor(fromNode?: DirectionNode, parentDirection?: Direction) {
     this._id = nodeCount++;
 
+    this._nodeFit = Fit.LOOSE;
+    this._rightToLeft = false;
     this._isPaintGroup = false;
     this._dirty = true;
+    this._scale = 1.0;
 
     // Layout
     this._neighbors = [];
@@ -71,6 +118,10 @@ export default class DirectionNode {
     this._paintGroupNext = this;
     this._paintGroupPrev = this;
 
+    this._value = null;
+    this._changeListener = null;
+    this._changeListenerThisArg = null;
+
     // Check if a parent node was provided.
     if (fromNode != null) {
       // A parent node was provided; this node is a child.
@@ -82,15 +133,47 @@ export default class DirectionNode {
     }
   }
 
-  neighborAt(dir: Direction): NeighborData {
+  x(): number {
+    if (this.isRoot()) {
+      return 0;
+    }
+    return this.parentNeighbor().xPos;
+  }
+
+  y(): number {
+    if (this.isRoot()) {
+      return 0;
+    }
+    return this.parentNeighbor().yPos;
+  }
+
+  setRightToLeft(val: boolean): void {
+    this._rightToLeft = !!val;
+    this.layoutWasChanged(Direction.INWARD);
+  }
+
+  rightToLeft(): boolean {
+    return this._rightToLeft;
+  }
+
+  nodeFit(): Fit {
+    return this._nodeFit;
+  }
+
+  setNodeFit(nodeFit: Fit): void {
+    this._nodeFit = nodeFit;
+    this.layoutWasChanged(Direction.INWARD);
+  }
+
+  neighborAt(dir: Direction): NeighborData<Value> {
     return this._neighbors[dir];
   }
 
-  createNeighborData(inDirection: Direction): NeighborData {
+  createNeighborData(inDirection: Direction): NeighborData<Value> {
     return new NeighborData(this, inDirection);
   }
 
-  ensureNeighbor(inDirection: Direction): NeighborData {
+  ensureNeighbor(inDirection: Direction): NeighborData<Value> {
     if (!this.neighborAt(inDirection)) {
       this._neighbors[inDirection] = this.createNeighborData(inDirection);
     }
@@ -329,6 +412,10 @@ export default class DirectionNode {
     return !this._parentNeighbor;
   }
 
+  parentNeighbor(): NeighborData<Value> {
+    return this._parentNeighbor;
+  }
+
   parentDirection(): Direction {
     if (this.isRoot()) {
       return Direction.NULL;
@@ -432,25 +519,109 @@ export default class DirectionNode {
     // console.log("Connecting paint groups " + a + " to " + b);
   };
 
-  connectNode(inDirection: Direction, node: this): this {
+  scaleAt(direction: Direction): number {
+    return this.nodeAt(direction).scale();
+  }
+
+  lineLengthAt(direction: Direction): number {
+    if (!this.hasNode(direction)) {
+      return 0;
+    }
+    return this.neighborAt(direction).lineLength;
+  }
+
+  setNodeAlignmentMode(
+    inDirection: Direction | Alignment,
+    newAlignmentMode?: Alignment
+  ): void {
+    if (newAlignmentMode === undefined) {
+      return this.parentNode().setNodeAlignmentMode(
+        reverseDirection(this.parentDirection()),
+        inDirection as Alignment
+      );
+    }
+    this.ensureNeighbor(
+      inDirection as Direction
+    ).alignmentMode = newAlignmentMode;
+    // console.log(nameNodeAlignment(newAlignmentMode));
+    this.layoutWasChanged(inDirection as Direction);
+  }
+
+  nodeAlignmentMode(inDirection: Direction): Alignment {
+    if (this.hasNode(inDirection)) {
+      return this.neighborAt(inDirection).alignmentMode;
+    }
+    return Alignment.NULL;
+  }
+
+  setAxisOverlap(
+    inDirection: Direction | AxisOverlap,
+    newAxisOverlap?: AxisOverlap
+  ): void {
+    if (newAxisOverlap === undefined) {
+      return this.parentNode().setAxisOverlap(
+        reverseDirection(this.parentDirection()),
+        inDirection as AxisOverlap
+      );
+    }
+    this.ensureNeighbor(
+      inDirection as Direction
+    ).allowAxisOverlap = newAxisOverlap;
+    this.layoutWasChanged(inDirection as Direction);
+  }
+
+  axisOverlap(inDirection?: Direction): AxisOverlap {
+    if (inDirection === undefined) {
+      return this.parentNode().axisOverlap(
+        reverseDirection(this.parentDirection())
+      );
+    }
+    if (this.hasNode(inDirection)) {
+      return this.neighborAt(inDirection).allowAxisOverlap;
+    }
+    return AxisOverlap.NULL;
+  }
+
+  separationAt(inDirection: Direction): number {
+    // Exclude some directions that cannot be calculated.
+    if (!isCardinalDirection(inDirection)) {
+      throw createException(BAD_NODE_DIRECTION);
+    }
+
+    // If the given direction is the parent's direction, use
+    // their measurement instead.
+    if (!this.isRoot() && inDirection == this.parentDirection()) {
+      return this.nodeParent().separationAt(reverseDirection(inDirection));
+    }
+
+    if (!this.hasNode(inDirection)) {
+      throw createException(NO_NODE_FOUND);
+    }
+
+    return this.neighborAt(inDirection).separation;
+  }
+
+  setPosAt(inDirection: Direction, x: number, y: number): void {
+    this.neighborAt(inDirection).xPos = x;
+    this.neighborAt(inDirection).yPos = y;
+  }
+
+  connectNode(
+    inDirection: Direction,
+    node: DirectionNode<Value>
+  ): DirectionNode<Value> {
     // console.log("Connecting " + node + " to " + this + " in the " +
     //   nameDirection(inDirection) + " direction.");
 
     // Ensure the node can be connected in the given direction.
     if (inDirection == Direction.OUTWARD) {
-      throw new Error(
-        "By rule, nodes cannot be spawned in the outward direction."
-      );
+      throw createException(NO_OUTWARD_CONNECT);
     }
     if (inDirection == Direction.NULL) {
-      throw new Error("Nodes cannot be spawned in the null node direction.");
+      throw createException(BAD_NODE_DIRECTION);
     }
     if (inDirection == this.parentDirection()) {
-      throw new Error(
-        "Cannot connect a node in the parent's direction (" +
-          nameDirection(inDirection) +
-          ")"
-      );
+      throw createException(NO_PARENT_CONNECT);
     }
     if (this.hasNode(inDirection)) {
       this.disconnectNode(inDirection);
@@ -464,6 +635,10 @@ export default class DirectionNode {
 
     // Connect the node.
     const neighbor = this.ensureNeighbor(inDirection);
+    // Allow alignments to be set before children are spawned.
+    if (neighbor.alignmentMode == Alignment.NULL) {
+      neighbor.alignmentMode = Alignment.NONE;
+    }
     neighbor.node = node;
     node.assignParent(this, inDirection);
 
@@ -501,10 +676,19 @@ export default class DirectionNode {
     return node;
   }
 
+  scale(): number {
+    return this._scale;
+  }
+
+  setScale(scale: number): void {
+    this._scale = scale;
+    this.layoutWasChanged(Direction.INWARD);
+  }
+
   firstAndLastPaintGroups(): [DirectionNode, DirectionNode] {
     const pg = this.findPaintGroup();
     if (!pg.isRoot() && !pg.localPaintGroup()) {
-      throw new Error("Paint group returned is not a paint group");
+      throw createException(NOT_PAINT_GROUP);
     }
     let lastPaintGroup: DirectionNode = null;
     let firstPaintGroup: DirectionNode = null;
@@ -533,7 +717,7 @@ export default class DirectionNode {
   disconnectNode(inDirection?: Direction): this {
     if (arguments.length === 0) {
       if (this.isRoot()) {
-        throw new Error("Cannot disconnect a root node.");
+        return this;
       }
       return this.parentNode().disconnectNode(
         reverseDirection(this.parentDirection())
@@ -572,7 +756,7 @@ export default class DirectionNode {
       DirectionNode.connectPaintGroup(lastPaintGroup, disconnected);
     } else {
       const paintGroupFirst = disconnected.findFirstPaintGroup();
-      /*console.log(
+      /* console.log(
         "First paint group",
         paintGroupFirst._id,
         paintGroupFirst._paintGroupPrev._id
@@ -774,9 +958,7 @@ export default class DirectionNode {
         given !== PreferredAxis.VERTICAL &&
         given !== PreferredAxis.HORIZONTAL
       ) {
-        throw new Error(
-          "Unallowed layout preference: " + namePreferredAxis(given)
-        );
+        throw createException(BAD_LAYOUT_PREFERENCE);
       }
       if (this._layoutPreference === given) {
         return;
@@ -905,7 +1087,7 @@ export default class DirectionNode {
     }
     this._parentNeighbor = fromNode.neighborAt(parentDirection);
     if (!this._parentNeighbor) {
-      throw new Error("Parent neighbor must be found when being assigned.");
+      throw createException(BAD_NODE_DIRECTION);
     }
   }
 
@@ -976,9 +1158,7 @@ export default class DirectionNode {
     let paintGroup = this;
     do {
       if (!paintGroup.localPaintGroup() && !paintGroup.isRoot()) {
-        throw new Error(
-          "Paint group chain must not refer to a non-paint group"
-        );
+        throw createException(NOT_PAINT_GROUP);
       }
       func(paintGroup);
       paintGroup = paintGroup._paintGroupPrev;
@@ -994,5 +1174,48 @@ export default class DirectionNode {
       neighbor.node = null;
     }, this);
     this._layoutState = LayoutState.NULL;
+  }
+
+  value(): Value {
+    return this._value;
+  }
+
+  setValue(newValue: Value, report?: boolean): void {
+    // console.log("Setting value to ", newValue);
+    const orig = this._value;
+    if (orig === newValue) {
+      return;
+    }
+    this._value = newValue;
+    this.layoutChanged(Direction.INWARD);
+    if (arguments.length === 1 || report) {
+      this.valueChanged(newValue, orig);
+    }
+  }
+
+  valueChanged(newValue: Value, orig?: Value): void {
+    // Invoke the listener.
+    if (!this.hasChangeListener()) {
+      return;
+    }
+    this._changeListener.call(this._changeListenerThisArg, newValue, orig);
+  }
+
+  hasChangeListener(): boolean {
+    return this._changeListener != null;
+  }
+
+  setChangeListener(listener: ChangeListener<Value>, thisArg?: object): void {
+    if (!listener) {
+      this._changeListener = null;
+      this._changeListenerThisArg = null;
+      return;
+    }
+    if (!thisArg) {
+      thisArg = this;
+    }
+    this._changeListener = listener;
+    this._changeListenerThisArg = thisArg;
+    // console.log("Set change listener for node " + this._id);
   }
 }
