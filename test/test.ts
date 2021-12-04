@@ -13,15 +13,14 @@ import {
   PreferredAxis,
   namePreferredAxis,
   NodePalette,
-  DefaultDirectionNode,
 } from "../dist/parsegraph-direction";
 import { elapsed } from "parsegraph-timing";
 
-class DirectionNodePalette extends NodePalette<DirectionNode> {
-  spawn(given?: any): DirectionNode {
-    return new DefaultDirectionNode();
+class DirectionNodePalette extends NodePalette {
+  spawn(): DirectionNode {
+    return new DirectionNode();
   }
-  replace(node: DirectionNode, given?: any): void {}
+  replace() {}
 }
 
 function makeCaret() {
@@ -36,7 +35,7 @@ describe("Package", function () {
 
 describe("DirectionNode", function () {
   it("works", () => {
-    const node = new DefaultDirectionNode();
+    const node = new DirectionNode();
     expect(node).to.be.instanceof(DirectionNode);
     assert(node.isRoot());
   });
@@ -181,8 +180,8 @@ describe("DirectionNode", function () {
   });
 
   it("Node Morris world threading spawned", function () {
-    const n = new DefaultDirectionNode();
-    n.connectNode(FORWARD, new DefaultDirectionNode());
+    const n = new DirectionNode();
+    n.connectNode(FORWARD, new DirectionNode());
   });
 });
 
@@ -323,17 +322,17 @@ describe("DirectionCaret", function () {
   });
 
   it("Node layout preference test", function () {
-    const root = new DefaultDirectionNode();
+    const root = new DirectionNode();
     root._id = "root";
 
-    const a = new DefaultDirectionNode();
+    const a = new DirectionNode();
     a._id = "a";
-    const b = new DefaultDirectionNode();
+    const b = new DirectionNode();
     b._id = "b";
-    const c = new DefaultDirectionNode();
+    const c = new DirectionNode();
     c._id = "c";
 
-    const chi = new DefaultDirectionNode();
+    const chi = new DirectionNode();
     chi._id = "chi";
 
     chi.connectNode(FORWARD, c);
@@ -366,7 +365,7 @@ describe("DirectionCaret", function () {
   });
 
   it("Node Morris world threading connected", function () {
-    const n = new DefaultDirectionNode();
+    const n = new DirectionNode();
     if (n._layoutNext != n) {
       throw new Error("Previous sanity");
     }
@@ -374,7 +373,7 @@ describe("DirectionCaret", function () {
       throw new Error("Next sanity");
     }
 
-    const b = new DefaultDirectionNode();
+    const b = new DirectionNode();
     if (b._layoutNext != b) {
       throw new Error("Previous sanity");
     }
@@ -398,7 +397,7 @@ describe("DirectionCaret", function () {
   });
 
   it("Node Morris world threading connected with multiple siblings", function () {
-    const n = new DefaultDirectionNode();
+    const n = new DirectionNode();
     n._id = "n";
     if (n._layoutNext != n) {
       throw new Error("Previous sanity");
@@ -407,7 +406,7 @@ describe("DirectionCaret", function () {
       throw new Error("Next sanity");
     }
 
-    const b = new DefaultDirectionNode();
+    const b = new DirectionNode();
     b._id = "b";
     if (b._layoutNext != b) {
       throw new Error("Previous sanity");
@@ -429,7 +428,7 @@ describe("DirectionCaret", function () {
     if (b._layoutNext != n) {
       throw new Error("Next connected sanity");
     }
-    const c = new DefaultDirectionNode();
+    const c = new DirectionNode();
     c._id = "c";
     n.connectNode(BACKWARD, c);
 
@@ -449,12 +448,12 @@ describe("DirectionCaret", function () {
     "Node Morris world threading connected with" +
       " multiple siblings and disconnected",
     function () {
-      const n = new DefaultDirectionNode();
+      const n = new DirectionNode();
       n._id = "n";
-      const b = new DefaultDirectionNode();
+      const b = new DirectionNode();
       b._id = "b";
 
-      const inner = b.connectNode(INWARD, new DefaultDirectionNode());
+      const inner = b.connectNode(INWARD, new DirectionNode());
       inner._id = "inner";
       if (b._layoutPrev != inner) {
         return "B layoutBefore isn't inner";
@@ -484,7 +483,7 @@ describe("DirectionCaret", function () {
       }
       // console.log("LNS");
       // console.log(getLayoutNodes(n));
-      const c = new DefaultDirectionNode();
+      const c = new DirectionNode();
       c._id = "c";
       n.connectNode(BACKWARD, c);
       // console.log("PLNS");
@@ -513,7 +512,7 @@ describe("DirectionCaret", function () {
     "Node Morris world threading connected with" +
       " multiple siblings and disconnected 2",
     function () {
-      const n = new DefaultDirectionNode();
+      const n = new DirectionNode();
       n._id = "n";
       if (n._layoutNext != n) {
         throw new Error("Previous sanity");
@@ -522,17 +521,17 @@ describe("DirectionCaret", function () {
         throw new Error("Next sanity");
       }
 
-      const b = new DefaultDirectionNode();
+      const b = new DirectionNode();
       b._id = "b";
       testLayoutNodes([b]);
 
-      const inner = b.connectNode(INWARD, new DefaultDirectionNode());
+      const inner = b.connectNode(INWARD, new DirectionNode());
       inner._id = "inner";
       testLayoutNodes([inner, b]);
 
       n.connectNode(FORWARD, b);
       testLayoutNodes([inner, b, n]);
-      const c = new DefaultDirectionNode();
+      const c = new DirectionNode();
       c._id = "c";
       n.connectNode(BACKWARD, c);
       testLayoutNodes([c, inner, b, n]);
@@ -545,16 +544,16 @@ describe("DirectionCaret", function () {
   );
 
   it("Node Morris world threading deeply connected", function () {
-    const n = new DefaultDirectionNode();
+    const n = new DirectionNode();
     n._id = "n";
     testLayoutNodes([n], "deeply conn 1");
-    const b = n.connectNode(FORWARD, new DefaultDirectionNode());
+    const b = n.connectNode(FORWARD, new DirectionNode());
     b._id = "b";
     testLayoutNodes([b, n], "deeply conn 2");
-    const c = b.connectNode(DOWNWARD, new DefaultDirectionNode());
+    const c = b.connectNode(DOWNWARD, new DirectionNode());
     c._id = "c";
     testLayoutNodes([c, b, n], "deeply conn 3");
-    const d = b.connectNode(FORWARD, new DefaultDirectionNode());
+    const d = b.connectNode(FORWARD, new DirectionNode());
     d._id = "d";
     b.setLayoutPreference(PreferredAxis.VERTICAL);
     testLayoutNodes([c, d, b, n], "deeply conn 4");
@@ -615,8 +614,8 @@ describe("DirectionCaret", function () {
   });
 
   it("Node Morris world threading connected with crease", function () {
-    const n = new DefaultDirectionNode();
-    const b = new DefaultDirectionNode();
+    const n = new DirectionNode();
+    const b = new DirectionNode();
     n.connectNode(FORWARD, b);
     b.setPaintGroup(true);
     if (b._layoutNext !== b) {
@@ -634,8 +633,8 @@ describe("DirectionCaret", function () {
   });
 
   it("Node Morris world threading connected with creased child", function () {
-    const n = new DefaultDirectionNode();
-    const b = new DefaultDirectionNode();
+    const n = new DirectionNode();
+    const b = new DirectionNode();
     b.setPaintGroup(true);
     n.connectNode(FORWARD, b);
     if (b._layoutNext !== b) {
@@ -693,13 +692,13 @@ describe("DirectionCaret", function () {
   });
 
   it("Disconnect parent test", function () {
-    const n = new DefaultDirectionNode();
-    const b = new DefaultDirectionNode();
+    const n = new DirectionNode();
+    const b = new DirectionNode();
     b.setPaintGroup(true);
     n.connectNode(INWARD, b);
 
-    const a = new DefaultDirectionNode();
-    const r = new DefaultDirectionNode();
+    const a = new DirectionNode();
+    const r = new DirectionNode();
     r.setPaintGroup(true);
     a.connectNode(INWARD, r);
     r.connectNode(INWARD, b);
@@ -799,10 +798,10 @@ describe("DirectionCaret", function () {
   it("Disconnect parent test, creased removal with outer pg", function () {
     let car = makeCaret();
     car.spawnMove("f", "s");
-    const hello = new DefaultDirectionNode();
+    const hello = new DirectionNode();
     car.node().connectNode(Direction.INWARD, hello);
 
-    const notime = new DefaultDirectionNode();
+    const notime = new DirectionNode();
     hello.connectNode(Direction.FORWARD, notime);
 
     let ccar = makeCaret();
