@@ -1,7 +1,7 @@
 import DirectionNode, { NeighborData } from "./DirectionNode";
 import DirectionCaret, { SHRINK_SCALE } from "./DirectionCaret";
 
-import NodePalette from "./NodePalette";
+import NodePalette, {InplaceNodePalette, BasicNodePalette} from "./NodePalette";
 
 import LayoutState, { nameLayoutState } from "./LayoutState";
 
@@ -143,6 +143,8 @@ export {
   directionSign,
   alternateDirection,
   NodePalette,
+  InplaceNodePalette,
+  BasicNodePalette,
   Alignment,
   nameAlignment,
   readAlignment,
