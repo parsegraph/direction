@@ -1,4 +1,4 @@
-import {assert, expect} from "chai";
+import { assert, expect } from "chai";
 import {
   Direction,
   DirectionNode,
@@ -21,4 +21,3 @@ describe("Caret", function () {
     assert.equal("b", car.node().value());
   });
 });
-

@@ -1,5 +1,5 @@
-import createException, {BAD_AXIS} from './Exception';
-import Direction, {reverseDirection} from './Direction';
+import createException, { BAD_AXIS } from "./Exception";
+import Direction, { reverseDirection } from "./Direction";
 
 export enum Axis {
   NULL = 6,
@@ -91,4 +91,3 @@ export function isNegativeDirection(given: Direction): boolean {
 export function directionSign(given: Direction): number {
   return isPositiveDirection(given) ? 1 : -1;
 }
-

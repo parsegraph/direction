@@ -1,6 +1,6 @@
-import Direction, {reverseDirection} from './Direction';
-import {getPerpendicularAxis, getPositiveDirection} from './Axis';
-import createException, {BAD_NODE_DIRECTION} from './Exception';
+import Direction, { reverseDirection } from "./Direction";
+import { getPerpendicularAxis, getPositiveDirection } from "./Axis";
+import createException, { BAD_NODE_DIRECTION } from "./Exception";
 
 export function turnLeft(given: Direction): Direction {
   switch (given) {
@@ -28,4 +28,3 @@ export function turnPositive(direction: Direction): Direction {
 export function turnNegative(direction: Direction): Direction {
   return reverseDirection(turnPositive(direction));
 }
-

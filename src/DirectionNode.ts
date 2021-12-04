@@ -7,14 +7,14 @@ import createException, {
   NO_NODE_FOUND,
   NO_OUTWARD_CONNECT,
   NO_PARENT_CONNECT,
-  NOT_PAINT_GROUP
+  NOT_PAINT_GROUP,
 } from "./Exception";
 
 import Axis, {
   getNegativeDirection,
   getPositiveDirection,
   getDirectionAxis,
-} from './Axis';
+} from "./Axis";
 
 import Direction, {
   isCardinalDirection,
@@ -22,7 +22,7 @@ import Direction, {
   reverseDirection,
   HORIZONTAL_ORDER,
   VERTICAL_ORDER,
-} from './Direction';
+} from "./Direction";
 
 import LayoutState from "./LayoutState";
 import PreferredAxis from "./PreferredAxis";

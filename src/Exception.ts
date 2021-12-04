@@ -20,50 +20,36 @@ export const NO_OUTWARD_CONNECT = 18;
 export const NO_PARENT_CONNECT = 19;
 export const NOT_PAINT_GROUP = 20;
 
+let descriptions: { [key: number]: string } = null;
 export function nameStatus(given: number) {
-  switch (given) {
-    case NULL_STATUS:
-      return "NULL_STATUS";
-    case OK:
-      return "OK";
-    case NO_NODE_FOUND:
-      return "NO_NODE_FOUND";
-    case ALREADY_OCCUPIED:
-      return "ALREADY_OCCUPIED";
-    case BAD_NODE_DIRECTION:
-      return "BAD_NODE_DIRECTION";
-    case BAD_NODE_CONTENT:
-      return "BAD_NODE_CONTENT";
-    case BAD_AXIS:
-      return "BAD_AXIS";
-    case BAD_LAYOUT_STATE:
-      return "BAD_LAYOUT_STATE";
-    case BAD_NODE_ALIGNMENT:
-      return "BAD_NODE_ALIGNMENT";
-    case NODE_IS_ROOT:
-      return "NODE_IS_ROOT";
-    case BAD_STATUS:
-      return "BAD_STATUS";
-    case CANNOT_AFFECT_PARENT:
-      return "CANNOT_AFFECT_PARENT";
-    case OFFSET_IS_NEGATIVE:
-      return "OFFSET_IS_NEGATIVE";
-    case BAD_LAYOUT_PREFERENCE:
-      return "BAD_LAYOUT_PREFERENCE";
-    case BAD_AXIS_OVERLAP:
-      return "BAD_AXIS_OVERLAP";
-    case BAD_NODE_TYPE:
-      return "BAD_NODE_TYPE";
-    case BAD_NODE_FIT:
-      return "BAD_NODE_FIT";
-    case NODE_DIRTY:
-      return "NODE_DIRTY";
-    case NO_OUTWARD_CONNECT:
-      return "By rule, nodes cannot be spawned in the outward direction.";
-    case NO_PARENT_CONNECT:
-      return "Cannot connect a node in the parent's direction";
-    case NOT_PAINT_GROUP:
-      return "Paint group returned is not a paint group";
+  if (!descriptions) {
+    descriptions = {
+      [NULL_STATUS]: "NULL_STATUS",
+      [OK]: "OK",
+      [NO_NODE_FOUND]: "NO_NODE_FOUND",
+      [ALREADY_OCCUPIED]: "ALREADY_OCCUPIED",
+      [BAD_NODE_DIRECTION]: "BAD_NODE_DIRECTION",
+      [BAD_NODE_CONTENT]: "BAD_NODE_CONTENT",
+      [BAD_AXIS]: "BAD_AXIS",
+      [BAD_LAYOUT_STATE]: "BAD_LAYOUT_STATE",
+      [BAD_NODE_ALIGNMENT]: "BAD_NODE_ALIGNMENT",
+      [NODE_IS_ROOT]: "NODE_IS_ROOT",
+      [BAD_STATUS]: "BAD_STATUS",
+      [CANNOT_AFFECT_PARENT]: "CANNOT_AFFECT_PARENT",
+      [OFFSET_IS_NEGATIVE]: "OFFSET_IS_NEGATIVE",
+      [BAD_LAYOUT_PREFERENCE]: "BAD_LAYOUT_PREFERENCE",
+      [BAD_AXIS_OVERLAP]: "BAD_AXIS_OVERLAP",
+      [BAD_NODE_TYPE]: "BAD_NODE_TYPE",
+      [BAD_NODE_FIT]: "BAD_NODE_FIT",
+      [NODE_DIRTY]: "NODE_DIRTY",
+      [NO_OUTWARD_CONNECT]:
+        "By rule, nodes cannot be spawned in the outward direction.",
+      [NO_PARENT_CONNECT]: "Cannot connect a node in the parent's direction",
+      [NOT_PAINT_GROUP]: "Paint group returned is not a paint group",
+    };
+  }
+  if (descriptions[given]) {
+    return descriptions[given];
   }
   throw createException(BAD_STATUS, given);
 }

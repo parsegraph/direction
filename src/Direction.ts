@@ -1,4 +1,4 @@
-import createException, {BAD_NODE_DIRECTION} from './Exception';
+import createException, { BAD_NODE_DIRECTION } from "./Exception";
 
 // Node Direction
 export enum Direction {

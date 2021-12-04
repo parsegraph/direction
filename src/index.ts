@@ -21,7 +21,7 @@ import Direction, {
   isCardinalDirection,
   forEachCardinalDirection,
   alternateDirection,
-} from './Direction';
+} from "./Direction";
 
 import Axis, {
   nameAxis,
@@ -34,14 +34,9 @@ import Axis, {
   getNegativeDirection,
   isNegativeDirection,
   directionSign,
-} from './Axis';
+} from "./Axis";
 
-import {
-  turnLeft,
-  turnRight,
-  turnNegative,
-  turnPositive,
-} from './turn';
+import { turnLeft, turnRight, turnNegative, turnPositive } from "./turn";
 
 import Alignment, { nameAlignment, readAlignment } from "./Alignment";
 import AxisOverlap, { nameAxisOverlap, readAxisOverlap } from "./AxisOverlap";
@@ -58,28 +53,28 @@ const OUTWARD = Direction.OUTWARD;
 const NULL = Direction.NULL;
 
 import createException, {
-NULL_STATUS,
-OK,
-BAD_STATUS,
-NO_NODE_FOUND,
-ALREADY_OCCUPIED,
-BAD_NODE_DIRECTION,
-BAD_NODE_CONTENT,
-BAD_AXIS,
-BAD_LAYOUT_STATE,
-BAD_NODE_ALIGNMENT,
-CANNOT_AFFECT_PARENT,
-OFFSET_IS_NEGATIVE,
-NODE_IS_ROOT,
-BAD_LAYOUT_PREFERENCE,
-BAD_AXIS_OVERLAP,
-BAD_NODE_TYPE,
-BAD_NODE_FIT,
-NODE_DIRTY,
-NO_OUTWARD_CONNECT,
-NO_PARENT_CONNECT,
-NOT_PAINT_GROUP,
-nameStatus,
+  NULL_STATUS,
+  OK,
+  BAD_STATUS,
+  NO_NODE_FOUND,
+  ALREADY_OCCUPIED,
+  BAD_NODE_DIRECTION,
+  BAD_NODE_CONTENT,
+  BAD_AXIS,
+  BAD_LAYOUT_STATE,
+  BAD_NODE_ALIGNMENT,
+  CANNOT_AFFECT_PARENT,
+  OFFSET_IS_NEGATIVE,
+  NODE_IS_ROOT,
+  BAD_LAYOUT_PREFERENCE,
+  BAD_AXIS_OVERLAP,
+  BAD_NODE_TYPE,
+  BAD_NODE_FIT,
+  NODE_DIRTY,
+  NO_OUTWARD_CONNECT,
+  NO_PARENT_CONNECT,
+  NOT_PAINT_GROUP,
+  nameStatus,
 } from "./Exception";
 
 export {
@@ -157,5 +152,5 @@ export {
   Fit,
   nameFit,
   readFit,
-  SHRINK_SCALE
+  SHRINK_SCALE,
 };

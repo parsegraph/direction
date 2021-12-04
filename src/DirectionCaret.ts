@@ -80,7 +80,10 @@ export default class DirectionCaret<Value> {
     return this.node().hasNode(inDirection);
   }
 
-  connect(inDirection: Direction | string, node: DirectionNode<Value>): DirectionNode<Value> {
+  connect(
+    inDirection: Direction | string,
+    node: DirectionNode<Value>
+  ): DirectionNode<Value> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
@@ -89,7 +92,10 @@ export default class DirectionCaret<Value> {
     return node;
   }
 
-  connectMove(inDirection: Direction | string, node: DirectionNode<Value>): DirectionNode<Value> {
+  connectMove(
+    inDirection: Direction | string,
+    node: DirectionNode<Value>
+  ): DirectionNode<Value> {
     // Interpret the given direction for ease-of-use.
     inDirection = readDirection(inDirection);
 
@@ -343,9 +349,11 @@ export default class DirectionCaret<Value> {
   //
   // ////////////////////////////////////////////////////////////////////////////
 
-  spawn(inDirection: Direction | string, newType?: any,
+  spawn(
+    inDirection: Direction | string,
+    newType?: any,
     newAlignmentMode?: Alignment | string
-       ): DirectionNode<Value> {
+  ): DirectionNode<Value> {
     // Interpret the given direction and type for ease-of-use.
     inDirection = readDirection(inDirection);
 
@@ -380,9 +388,11 @@ export default class DirectionCaret<Value> {
     this.doReplace(node, withType);
   }
 
-  spawnMove(inDirection: Direction | string, newType?: DirectionNode<Value> | string,
+  spawnMove(
+    inDirection: Direction | string,
+    newType?: DirectionNode<Value> | string,
     newAlignmentMode?: Alignment | string
-           ): DirectionNode<Value> {
+  ): DirectionNode<Value> {
     const created = this.spawn(inDirection, newType, newAlignmentMode);
     this.move(inDirection);
     return created;
