@@ -47,7 +47,7 @@ export default class DirectionCaret<Value> {
 
   doSpawn(given?: any): DirectionNode<Value> {
     if (this._palette) {
-      return new DirectionNode(this._palette.spawn(given));
+      return new DirectionNode(this._palette(given));
     }
     return given instanceof DirectionNode
       ? (given as DirectionNode<Value>)
@@ -56,7 +56,7 @@ export default class DirectionCaret<Value> {
 
   doReplace(node: DirectionNode<Value>, given?: any): void {
     if (this._palette) {
-      node.setValue(this._palette.spawn(given));
+      node.setValue(this._palette(given));
       return;
     }
     node.setValue(given instanceof DirectionNode
@@ -65,8 +65,7 @@ export default class DirectionCaret<Value> {
   }
 
   clone(): DirectionCaret<Value> {
-    const car = new DirectionCaret<Value>(this.palette(), this.node());
-    return car;
+    return new DirectionCaret<Value>(this.node(), this.palette());
   }
 
   node(): DirectionNode<Value> {
