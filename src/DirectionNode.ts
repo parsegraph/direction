@@ -173,8 +173,8 @@ export default class DirectionNode<Value = any> {
     return this.neighborAt(inDirection);
   }
 
-  root(): this {
-    let p: this = this;
+  root(): DirectionNode<Value> {
+    let p: DirectionNode<Value> = this;
     while (!p.isRoot()) {
       p = p.parentNode();
     }
@@ -190,12 +190,12 @@ export default class DirectionNode<Value = any> {
   }
 
   removeFromLayout(inDirection: Direction): void {
-    const disconnected: this = this.nodeAt(inDirection);
+    const disconnected: DirectionNode<Value> = this.nodeAt(inDirection);
     if (!disconnected) {
       return;
     }
-    const layoutBefore: this = this.findEarlierLayoutSibling(inDirection);
-    const earliestDisc: this = disconnected.findLayoutHead(disconnected);
+    const layoutBefore: DirectionNode<Value> = this.findEarlierLayoutSibling(inDirection);
+    const earliestDisc: DirectionNode<Value> = disconnected.findLayoutHead(disconnected);
 
     if (layoutBefore) {
       DirectionNode.connectLayout(layoutBefore, disconnected.nextLayout());
@@ -209,17 +209,17 @@ export default class DirectionNode<Value = any> {
   }
 
   insertIntoLayout(inDirection: Direction): void {
-    const node: this = this.nodeAt(inDirection);
+    const node: DirectionNode<Value> = this.nodeAt(inDirection);
     if (!node) {
       return;
     }
 
-    const nodeHead: this = node.findLayoutHead();
+    const nodeHead: DirectionNode<Value> = node.findLayoutHead();
 
-    const layoutAfter: this = this.findLaterLayoutSibling(inDirection);
-    const layoutBefore: this = this.findEarlierLayoutSibling(inDirection);
+    const layoutAfter: DirectionNode<Value> = this.findLaterLayoutSibling(inDirection);
+    const layoutBefore: DirectionNode<Value> = this.findEarlierLayoutSibling(inDirection);
 
-    const nodeTail: this = node;
+    const nodeTail: DirectionNode<Value> = node;
     // console.log(this + ".connectNode(" + nameDirection(inDirection) +
     //   ", " + node + ") layoutBefore=" +
     //   layoutBefore + " layoutAfter=" +
@@ -320,8 +320,8 @@ export default class DirectionNode<Value = any> {
     this.layoutChanged();
   }
 
-  hasAncestor(parent: DirectionNode): boolean {
-    let candidate = this;
+  hasAncestor(parent: DirectionNode<Value>): boolean {
+    let candidate: DirectionNode<Value> = this;
     while (!candidate.isRoot()) {
       if (candidate == parent) {
         return true;
@@ -370,7 +370,7 @@ export default class DirectionNode<Value = any> {
 
   findPaintGroup(): DirectionNode<Value> {
     if (!this.currentPaintGroup()) {
-      let node: this = this;
+      let node: DirectionNode<Value> = this;
       while (!node.isRoot()) {
         if (node.localPaintGroup()) {
           break;
@@ -416,18 +416,18 @@ export default class DirectionNode<Value = any> {
     return reverseDirection(this.parentNeighbor().direction);
   }
 
-  nodeParent(): this {
+  nodeParent(): DirectionNode<Value> {
     if (this.isRoot()) {
       throw createException(NODE_IS_ROOT);
     }
     return this.parentNeighbor().owner as this;
   }
 
-  parentNode(): this {
+  parentNode(): DirectionNode<Value> {
     return this.nodeParent();
   }
 
-  parent(): this {
+  parent(): DirectionNode<Value> {
     return this.nodeParent();
   }
 
@@ -683,8 +683,8 @@ export default class DirectionNode<Value = any> {
     if (!pg.isRoot() && !pg.localPaintGroup()) {
       throw createException(NOT_PAINT_GROUP);
     }
-    let lastPaintGroup: DirectionNode = null;
-    let firstPaintGroup: DirectionNode = null;
+    let lastPaintGroup: DirectionNode<Value> = null;
+    let firstPaintGroup: DirectionNode<Value> = null;
     for (let n = pg.prevPaintGroup(); n != pg; n = n.prevPaintGroup()) {
       // console.log("First and last iteration. n=" + n.id());
       if (!n.hasAncestor(pg)) {
@@ -707,7 +707,7 @@ export default class DirectionNode<Value = any> {
     return [firstPaintGroup, lastPaintGroup];
   }
 
-  disconnectNode(inDirection?: Direction): this {
+  disconnectNode(inDirection?: Direction): DirectionNode<Value> {
     if (arguments.length === 0) {
       if (this.isRoot()) {
         return this;
@@ -846,7 +846,7 @@ export default class DirectionNode<Value = any> {
     return layoutAfter;
   }
 
-  findLayoutHead(excludeThisNode?: this): DirectionNode<Value> {
+  findLayoutHead(excludeThisNode?: DirectionNode<Value>): DirectionNode<Value> {
     let deeplyLinked: DirectionNode<Value> = this;
     let foundOne;
     while (true) {
@@ -1075,7 +1075,7 @@ export default class DirectionNode<Value = any> {
     }
   }
 
-  assignParent(fromNode?: this, parentDirection?: Direction): void {
+  assignParent(fromNode?: DirectionNode<Value>, parentDirection?: Direction): void {
     if (arguments.length === 0 || !fromNode) {
       // Clearing the parent.
       this._parentNeighbor = null;
@@ -1114,7 +1114,7 @@ export default class DirectionNode<Value = any> {
       throw createException(BAD_NODE_DIRECTION);
     }
 
-    let node: this = this;
+    let node: DirectionNode<Value> = this;
     while (node !== null) {
       // console.log("Node " + node + " has layout changed");
       const oldLayoutState = node.getLayoutState();
