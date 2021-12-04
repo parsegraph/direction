@@ -194,8 +194,12 @@ export default class DirectionNode<Value = any> {
     if (!disconnected) {
       return;
     }
-    const layoutBefore: DirectionNode<Value> = this.findEarlierLayoutSibling(inDirection);
-    const earliestDisc: DirectionNode<Value> = disconnected.findLayoutHead(disconnected);
+    const layoutBefore: DirectionNode<Value> = this.findEarlierLayoutSibling(
+      inDirection
+    );
+    const earliestDisc: DirectionNode<Value> = disconnected.findLayoutHead(
+      disconnected
+    );
 
     if (layoutBefore) {
       DirectionNode.connectLayout(layoutBefore, disconnected.nextLayout());
@@ -216,8 +220,12 @@ export default class DirectionNode<Value = any> {
 
     const nodeHead: DirectionNode<Value> = node.findLayoutHead();
 
-    const layoutAfter: DirectionNode<Value> = this.findLaterLayoutSibling(inDirection);
-    const layoutBefore: DirectionNode<Value> = this.findEarlierLayoutSibling(inDirection);
+    const layoutAfter: DirectionNode<Value> = this.findLaterLayoutSibling(
+      inDirection
+    );
+    const layoutBefore: DirectionNode<Value> = this.findEarlierLayoutSibling(
+      inDirection
+    );
 
     const nodeTail: DirectionNode<Value> = node;
     // console.log(this + ".connectNode(" + nameDirection(inDirection) +
@@ -764,12 +772,15 @@ export default class DirectionNode<Value = any> {
     neighbor.node = null;
     disconnected.assignParent(null);
 
-    if (disconnected.getLayoutPreference() === PreferredAxis.PARENT) { if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
+    if (disconnected.getLayoutPreference() === PreferredAxis.PARENT) {
+      if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
         disconnected.setLayoutPreference(PreferredAxis.VERTICAL);
       } else {
         disconnected.setLayoutPreference(PreferredAxis.HORIZONTAL);
       }
-    } else if (disconnected.getLayoutPreference() === PreferredAxis.PERPENDICULAR) {
+    } else if (
+      disconnected.getLayoutPreference() === PreferredAxis.PERPENDICULAR
+    ) {
       if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
         disconnected.setLayoutPreference(PreferredAxis.HORIZONTAL);
       } else {
@@ -1075,7 +1086,10 @@ export default class DirectionNode<Value = any> {
     }
   }
 
-  assignParent(fromNode?: DirectionNode<Value>, parentDirection?: Direction): void {
+  assignParent(
+    fromNode?: DirectionNode<Value>,
+    parentDirection?: Direction
+  ): void {
     if (arguments.length === 0 || !fromNode) {
       // Clearing the parent.
       this._parentNeighbor = null;
@@ -1098,7 +1112,7 @@ export default class DirectionNode<Value = any> {
     return this._layoutState;
   }
 
-  setLayoutState(state:LayoutState) {
+  setLayoutState(state: LayoutState) {
     this._layoutState = state;
   }
 
@@ -1150,16 +1164,16 @@ export default class DirectionNode<Value = any> {
     );
   }
 
-  forEachNode(func: (node:DirectionNode<Value>)=>void): void {
-    let node:DirectionNode<Value> = this;
+  forEachNode(func: (node: DirectionNode<Value>) => void): void {
+    let node: DirectionNode<Value> = this;
     do {
       func(node);
       node = node.prevLayout();
     } while (node !== this);
   }
 
-  forEachPaintGroup(func: (node:DirectionNode<Value>)=>void): void {
-    let paintGroup:DirectionNode<Value> = this;
+  forEachPaintGroup(func: (node: DirectionNode<Value>) => void): void {
+    let paintGroup: DirectionNode<Value> = this;
     do {
       if (!paintGroup.localPaintGroup() && !paintGroup.isRoot()) {
         throw createException(NOT_PAINT_GROUP);
@@ -1227,31 +1241,31 @@ export default class DirectionNode<Value = any> {
     return this._id;
   }
 
-  setId(id:string|number) {
+  setId(id: string | number) {
     this._id = id;
   }
 
-  nextLayout():DirectionNode<Value> {
+  nextLayout(): DirectionNode<Value> {
     return this._layoutNext;
   }
 
-  prevLayout():DirectionNode<Value> {
+  prevLayout(): DirectionNode<Value> {
     return this._layoutPrev;
   }
 
-  nextPaintGroup():DirectionNode<Value> {
+  nextPaintGroup(): DirectionNode<Value> {
     return this._paintGroupNext;
   }
 
-  prevPaintGroup():DirectionNode<Value> {
+  prevPaintGroup(): DirectionNode<Value> {
     return this._paintGroupPrev;
   }
 
-  setCurrentPaintGroup(pg:DirectionNode<Value>) {
+  setCurrentPaintGroup(pg: DirectionNode<Value>) {
     this._currentPaintGroup = pg;
   }
 
-  currentPaintGroup():DirectionNode<Value> {
+  currentPaintGroup(): DirectionNode<Value> {
     return this._currentPaintGroup;
   }
 }
