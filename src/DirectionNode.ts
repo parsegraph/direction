@@ -384,7 +384,7 @@ export default class DirectionNode<Value = any> {
     this.markedDirty();
   }
 
-  clearDirty():void {
+  clearDirty(): void {
     this._dirty = false;
   }
 
