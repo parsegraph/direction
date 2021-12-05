@@ -24,4 +24,17 @@ describe("DirectionNode", function () {
     n.setValue("Hey");
     assert.equal("Hey", n.value());
   });
+
+  it("can listen for dirty events", () => {
+    const p = new DirectionNode<string>("No time");
+    const c = new DirectionNode<string>("Child");
+    p.connectNode(Direction.DOWNWARD, c);
+    p.clearDirty();
+    let f = 0;
+    p.setDirtyListener(() => {
+      ++f;
+    });
+    c.setValue("Teenager");
+    assert.equal(1, f, "Dirty listener is fired once on change");
+  });
 });

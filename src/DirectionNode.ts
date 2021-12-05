@@ -71,6 +71,7 @@ export class NeighborData<Value> {
 let nodeCount: number = 0;
 
 export type ChangeListener<Value = any> = (value: Value, orig?: Value) => void;
+export type DirtyListener<Value = any> = (node: DirectionNode<Value>) => void;
 
 export default class DirectionNode<Value = any> {
   _rightToLeft: boolean;
@@ -88,6 +89,9 @@ export default class DirectionNode<Value = any> {
   _dirty: boolean;
   _layoutPreference: PreferredAxis;
   _scale: number;
+
+  _dirtyListener: DirtyListener<Value>;
+  _dirtyListenerThisArg: object;
 
   _value: Value;
   _changeListener: ChangeListener<Value>;
@@ -119,8 +123,12 @@ export default class DirectionNode<Value = any> {
     this._paintGroupPrev = this;
 
     this._value = initialVal;
+
     this._changeListener = null;
     this._changeListenerThisArg = null;
+
+    this._dirtyListener = null;
+    this._dirtyListenerThisArg = null;
 
     // No parent was provided; this node is a root.
     this._layoutPreference = PreferredAxis.HORIZONTAL;
@@ -368,8 +376,16 @@ export default class DirectionNode<Value = any> {
   }
 
   markDirty(): void {
+    if (this._dirty) {
+      return;
+    }
     // console.log(this + " marked dirty");
     this._dirty = true;
+    this.markedDirty();
+  }
+
+  clearDirty():void {
+    this._dirty = false;
   }
 
   isDirty(): boolean {
@@ -1205,8 +1221,8 @@ export default class DirectionNode<Value = any> {
       return;
     }
     this._value = newValue;
-    this.layoutChanged(Direction.INWARD);
     if (arguments.length === 1 || report) {
+      this.layoutChanged(Direction.INWARD);
       this.valueChanged(newValue, orig);
     }
   }
@@ -1217,6 +1233,14 @@ export default class DirectionNode<Value = any> {
       return;
     }
     this._changeListener.call(this._changeListenerThisArg, newValue, orig);
+  }
+
+  markedDirty(): void {
+    // Invoke the listener.
+    if (!this.hasDirtyListener()) {
+      return;
+    }
+    this._dirtyListener.call(this._dirtyListenerThisArg, this);
   }
 
   hasChangeListener(): boolean {
@@ -1234,6 +1258,24 @@ export default class DirectionNode<Value = any> {
     }
     this._changeListener = listener;
     this._changeListenerThisArg = thisArg;
+    // console.log("Set change listener for node " + this.id());
+  }
+
+  hasDirtyListener(): boolean {
+    return this._dirtyListener != null;
+  }
+
+  setDirtyListener(listener: DirtyListener<Value>, thisArg?: object): void {
+    if (!listener) {
+      this._dirtyListener = null;
+      this._dirtyListenerThisArg = null;
+      return;
+    }
+    if (!thisArg) {
+      thisArg = this;
+    }
+    this._dirtyListener = listener;
+    this._dirtyListenerThisArg = thisArg;
     // console.log("Set change listener for node " + this.id());
   }
 

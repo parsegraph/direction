@@ -1,7 +1,14 @@
-import DirectionNode, { NeighborData } from "./DirectionNode";
+import DirectionNode, {
+  ChangeListener,
+  DirtyListener,
+  NeighborData,
+} from "./DirectionNode";
 import DirectionCaret, { SHRINK_SCALE } from "./DirectionCaret";
 
-import NodePalette, {InplaceNodePalette, BasicNodePalette} from "./NodePalette";
+import NodePalette, {
+  InplaceNodePalette,
+  BasicNodePalette,
+} from "./NodePalette";
 
 import LayoutState, { nameLayoutState } from "./LayoutState";
 
@@ -155,4 +162,6 @@ export {
   nameFit,
   readFit,
   SHRINK_SCALE,
+  ChangeListener,
+  DirtyListener,
 };
