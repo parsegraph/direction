@@ -16,6 +16,6 @@
     "homepage": "https://github.com/parsegraph/direction#readme",
     "dependencies": {
       "parsegraph-generateid": "^1.4.5",
-      "parsegraph-timing": "^1.4.6"
+      "parsegraph-timing": "^1.4.8"
     }
   }
