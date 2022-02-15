@@ -117,7 +117,6 @@ export default class DirectionNode<Value = any> {
 
     this._value = initialVal;
 
-    // No parent was provided; this node is a root.
     this._layoutPreference = PreferredAxis.HORIZONTAL;
   }
 
@@ -788,7 +787,9 @@ export default class DirectionNode<Value = any> {
     this.disconnectNode(givenDirection);
   }
 
-  protected findEarlierLayoutSibling(inDirection: Direction): DirectionNode<Value> {
+  protected findEarlierLayoutSibling(
+    inDirection: Direction
+  ): DirectionNode<Value> {
     let layoutBefore;
     const dirs = this.layoutOrder();
     let pastDir = false;
@@ -815,7 +816,9 @@ export default class DirectionNode<Value = any> {
     return layoutBefore;
   }
 
-  protected findLaterLayoutSibling(inDirection: Direction): DirectionNode<Value> {
+  protected findLaterLayoutSibling(
+    inDirection: Direction
+  ): DirectionNode<Value> {
     let layoutAfter;
     const dirs = this.layoutOrder();
     let pastDir = false;
@@ -843,7 +846,9 @@ export default class DirectionNode<Value = any> {
     return layoutAfter;
   }
 
-  protected findLayoutHead(excludeThisNode?: DirectionNode<Value>): DirectionNode<Value> {
+  protected findLayoutHead(
+    excludeThisNode?: DirectionNode<Value>
+  ): DirectionNode<Value> {
     let deeplyLinked: DirectionNode<Value> = this;
     let foundOne;
     while (true) {
