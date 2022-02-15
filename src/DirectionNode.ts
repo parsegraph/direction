@@ -70,9 +70,6 @@ export class NeighborData<Value> {
 
 let nodeCount: number = 0;
 
-export type ChangeListener<Value = any> = (value: Value, orig?: Value) => void;
-export type DirtyListener<Value = any> = (node: DirectionNode<Value>) => void;
-
 export default class DirectionNode<Value = any> {
   _rightToLeft: boolean;
   _id: string | number;
@@ -91,14 +88,8 @@ export default class DirectionNode<Value = any> {
   _paintGroupNext: DirectionNode<Value>;
   _paintGroupPrev: DirectionNode<Value>;
   _isPaintGroup: boolean;
-  _dirty: boolean;
-
-  _dirtyListener: DirtyListener<Value>;
-  _dirtyListenerThisArg: object;
 
   _value: Value;
-  _changeListener: ChangeListener<Value>;
-  _changeListenerThisArg: object;
 
   constructor(initialVal: Value = null) {
     this._id = nodeCount++;
@@ -106,7 +97,6 @@ export default class DirectionNode<Value = any> {
     this._nodeFit = Fit.LOOSE;
     this._rightToLeft = false;
     this._isPaintGroup = false;
-    this._dirty = true;
     this._scale = 1.0;
 
     // Layout
@@ -126,12 +116,6 @@ export default class DirectionNode<Value = any> {
     this._paintGroupPrev = this;
 
     this._value = initialVal;
-
-    this._changeListener = null;
-    this._changeListenerThisArg = null;
-
-    this._dirtyListener = null;
-    this._dirtyListenerThisArg = null;
 
     // No parent was provided; this node is a root.
     this._layoutPreference = PreferredAxis.HORIZONTAL;
@@ -376,23 +360,6 @@ export default class DirectionNode<Value = any> {
       candidate = candidate.prevLayout();
     }
     return candidate;
-  }
-
-  markDirty(): void {
-    if (this._dirty) {
-      return;
-    }
-    // console.log(this + " marked dirty");
-    this._dirty = true;
-    this.markedDirty();
-  }
-
-  clearDirty(): void {
-    this._dirty = false;
-  }
-
-  isDirty(): boolean {
-    return this._dirty;
   }
 
   findPaintGroup(): DirectionNode<Value> {
@@ -1124,8 +1091,6 @@ export default class DirectionNode<Value = any> {
   protected invalidateLayout(): void {
     this.setLayoutState(LayoutState.NEEDS_COMMIT);
     this.setCurrentPaintGroup(null);
-
-    this.findPaintGroup().markDirty();
   }
 
   getLayoutState(): LayoutState {
@@ -1227,60 +1192,7 @@ export default class DirectionNode<Value = any> {
     this._value = newValue;
     if (arguments.length === 1 || report) {
       this.layoutChanged(Direction.INWARD);
-      this.valueChanged(newValue, orig);
     }
-  }
-
-  valueChanged(newValue: Value, orig?: Value): void {
-    // Invoke the listener.
-    if (!this.hasChangeListener()) {
-      return;
-    }
-    this._changeListener.call(this._changeListenerThisArg, newValue, orig);
-  }
-
-  markedDirty(): void {
-    // Invoke the listener.
-    if (!this.hasDirtyListener()) {
-      return;
-    }
-    this._dirtyListener.call(this._dirtyListenerThisArg, this);
-  }
-
-  hasChangeListener(): boolean {
-    return this._changeListener != null;
-  }
-
-  setChangeListener(listener: ChangeListener<Value>, thisArg?: object): void {
-    if (!listener) {
-      this._changeListener = null;
-      this._changeListenerThisArg = null;
-      return;
-    }
-    if (!thisArg) {
-      thisArg = this;
-    }
-    this._changeListener = listener;
-    this._changeListenerThisArg = thisArg;
-    // console.log("Set change listener for node " + this.id());
-  }
-
-  hasDirtyListener(): boolean {
-    return this._dirtyListener != null;
-  }
-
-  setDirtyListener(listener: DirtyListener<Value>, thisArg?: object): void {
-    if (!listener) {
-      this._dirtyListener = null;
-      this._dirtyListenerThisArg = null;
-      return;
-    }
-    if (!thisArg) {
-      thisArg = this;
-    }
-    this._dirtyListener = listener;
-    this._dirtyListenerThisArg = thisArg;
-    // console.log("Set change listener for node " + this.id());
   }
 
   id(): string | number {
