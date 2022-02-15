@@ -77,18 +77,21 @@ export default class DirectionNode<Value = any> {
   _rightToLeft: boolean;
   _id: string | number;
   _nodeFit: Fit;
+  _layoutPreference: PreferredAxis;
+  _scale: number;
+
   _neighbors: NeighborData<Value>[];
   _parentNeighbor: NeighborData<Value>;
+
   _layoutState: LayoutState;
   _layoutPrev: DirectionNode<Value>;
   _layoutNext: DirectionNode<Value>;
+
   _currentPaintGroup: DirectionNode<Value>;
   _paintGroupNext: DirectionNode<Value>;
   _paintGroupPrev: DirectionNode<Value>;
   _isPaintGroup: boolean;
   _dirty: boolean;
-  _layoutPreference: PreferredAxis;
-  _scale: number;
 
   _dirtyListener: DirtyListener<Value>;
   _dirtyListenerThisArg: object;
@@ -1085,6 +1088,7 @@ export default class DirectionNode<Value = any> {
     }
     return canonicalPref;
   }
+
   eachChild(
     visitor: (node: DirectionNode, dir: Direction) => void,
     visitorThisArg?: object
