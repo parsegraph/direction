@@ -170,11 +170,11 @@ export default class DirectionNode<Value = any> {
     return this._neighbors[dir];
   }
 
-  createNeighborData(inDirection: Direction): NeighborData<Value> {
+  protected createNeighborData(inDirection: Direction): NeighborData<Value> {
     return new NeighborData(this, inDirection);
   }
 
-  ensureNeighbor(inDirection: Direction): NeighborData<Value> {
+  protected ensureNeighbor(inDirection: Direction): NeighborData<Value> {
     if (!this.neighborAt(inDirection)) {
       this._neighbors[inDirection] = this.createNeighborData(inDirection);
     }
@@ -197,7 +197,7 @@ export default class DirectionNode<Value = any> {
     return this.getLayoutState() === LayoutState.NEEDS_COMMIT;
   }
 
-  removeFromLayout(inDirection: Direction): void {
+  private removeFromLayout(inDirection: Direction): void {
     const disconnected: DirectionNode<Value> = this.nodeAt(inDirection);
     if (!disconnected) {
       return;
@@ -220,7 +220,7 @@ export default class DirectionNode<Value = any> {
     DirectionNode.connectLayout(disconnected, earliestDisc);
   }
 
-  insertIntoLayout(inDirection: Direction): void {
+  private insertIntoLayout(inDirection: Direction): void {
     const node: DirectionNode<Value> = this.nodeAt(inDirection);
     if (!node) {
       return;
@@ -353,7 +353,7 @@ export default class DirectionNode<Value = any> {
    *
    * @return {this} The first paint group to be drawn that is a child of this paint group.
    */
-  findFirstPaintGroup(): DirectionNode<Value> {
+  protected findFirstPaintGroup(): DirectionNode<Value> {
     let candidate: DirectionNode<Value> = this.prevPaintGroup();
     while (candidate !== this) {
       if (!candidate.hasAncestor(this)) {
@@ -364,7 +364,7 @@ export default class DirectionNode<Value = any> {
     return candidate;
   }
 
-  findLastPaintGroup(): DirectionNode<Value> {
+  protected findLastPaintGroup(): DirectionNode<Value> {
     let candidate: DirectionNode<Value> = this.prevLayout();
     while (candidate !== this) {
       if (candidate.localPaintGroup()) {
@@ -429,7 +429,7 @@ export default class DirectionNode<Value = any> {
     return !this._parentNeighbor;
   }
 
-  parentNeighbor(): NeighborData<Value> {
+  protected parentNeighbor(): NeighborData<Value> {
     return this._parentNeighbor;
   }
 
@@ -702,7 +702,7 @@ export default class DirectionNode<Value = any> {
     this.layoutWasChanged(Direction.INWARD);
   }
 
-  firstAndLastPaintGroups(): [DirectionNode, DirectionNode] {
+  protected firstAndLastPaintGroups(): [DirectionNode, DirectionNode] {
     const pg = this.findPaintGroup();
     if (!pg.isRoot() && !pg.localPaintGroup()) {
       throw createException(NOT_PAINT_GROUP);
@@ -818,7 +818,7 @@ export default class DirectionNode<Value = any> {
     this.disconnectNode(givenDirection);
   }
 
-  findEarlierLayoutSibling(inDirection: Direction): DirectionNode<Value> {
+  protected findEarlierLayoutSibling(inDirection: Direction): DirectionNode<Value> {
     let layoutBefore;
     const dirs = this.layoutOrder();
     let pastDir = false;
@@ -845,7 +845,7 @@ export default class DirectionNode<Value = any> {
     return layoutBefore;
   }
 
-  findLaterLayoutSibling(inDirection: Direction): DirectionNode<Value> {
+  protected findLaterLayoutSibling(inDirection: Direction): DirectionNode<Value> {
     let layoutAfter;
     const dirs = this.layoutOrder();
     let pastDir = false;
@@ -873,7 +873,7 @@ export default class DirectionNode<Value = any> {
     return layoutAfter;
   }
 
-  findLayoutHead(excludeThisNode?: DirectionNode<Value>): DirectionNode<Value> {
+  protected findLayoutHead(excludeThisNode?: DirectionNode<Value>): DirectionNode<Value> {
     let deeplyLinked: DirectionNode<Value> = this;
     let foundOne;
     while (true) {
@@ -900,7 +900,7 @@ export default class DirectionNode<Value = any> {
     return deeplyLinked;
   }
 
-  sanitizeLayoutPreference(given: PreferredAxis): PreferredAxis {
+  protected sanitizeLayoutPreference(given: PreferredAxis): PreferredAxis {
     const paxis = getDirectionAxis(this.parentDirection());
     if (given === PreferredAxis.VERTICAL) {
       given =
@@ -1102,7 +1102,7 @@ export default class DirectionNode<Value = any> {
     }
   }
 
-  assignParent(
+  protected assignParent(
     fromNode?: DirectionNode<Value>,
     parentDirection?: Direction
   ): void {
@@ -1117,7 +1117,7 @@ export default class DirectionNode<Value = any> {
     }
   }
 
-  invalidateLayout(): void {
+  protected invalidateLayout(): void {
     this.setLayoutState(LayoutState.NEEDS_COMMIT);
     this.setCurrentPaintGroup(null);
 
@@ -1132,7 +1132,7 @@ export default class DirectionNode<Value = any> {
     this._layoutState = state;
   }
 
-  layoutWasChanged(changeDirection?: Direction): void {
+  protected layoutWasChanged(changeDirection?: Direction): void {
     // console.log("layoutWasChanged(" +
     //   (changeDirection != null ? nameDirection(
     //     changeDirection) : "null") +")")
