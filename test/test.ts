@@ -1,15 +1,9 @@
-const expect = require("chai").expect;
-const assert = require("chai").assert;
+import {expect, assert} from "chai";
 import {
   Direction,
   DirectionNode,
   readDirection,
   DirectionCaret,
-  FORWARD,
-  BACKWARD,
-  UPWARD,
-  DOWNWARD,
-  INWARD,
   PreferredAxis,
   namePreferredAxis,
 } from "../src/index";
