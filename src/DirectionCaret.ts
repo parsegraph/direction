@@ -1,8 +1,7 @@
 import Direction, { readDirection, reverseDirection } from "./Direction";
-import { isVerticalDirection, getDirectionAxis } from "./Axis";
 import createException, { NO_NODE_FOUND } from "./Exception";
 import generateID from "parsegraph-generateid";
-import DirectionNode, { ChangeListener } from "./DirectionNode";
+import DirectionNode from "./DirectionNode";
 import PreferredAxis from "./PreferredAxis";
 import NodePalette, {
   BasicNodePalette,
@@ -137,9 +136,7 @@ export default class DirectionCaret<Value> {
     }
 
     // Create a new paint group for the connection.
-    if (!node.localPaintGroup()) {
-      node.setPaintGroup(true);
-    }
+    node.crease();
   }
 
   uncrease(inDirection?: Direction | string) {
@@ -154,7 +151,7 @@ export default class DirectionCaret<Value> {
     }
 
     // Remove the paint group.
-    node.setPaintGroup(false);
+    node.uncrease();
   }
 
   isCreased(inDirection?: Direction | string): boolean {
@@ -242,27 +239,7 @@ export default class DirectionCaret<Value> {
 
   pull(given: Direction | string): void {
     given = readDirection(given);
-    if (
-      this.node().isRoot() ||
-      this.node().parentDirection() === Direction.OUTWARD
-    ) {
-      if (isVerticalDirection(given)) {
-        this.node().setLayoutPreference(PreferredAxis.VERTICAL);
-      } else {
-        this.node().setLayoutPreference(PreferredAxis.HORIZONTAL);
-      }
-      return;
-    }
-    if (
-      getDirectionAxis(given) ===
-      getDirectionAxis(this.node().parentDirection())
-    ) {
-      // console.log(namePreferredAxis(PreferredAxis.PARENT));
-      this.node().setLayoutPreference(PreferredAxis.PARENT);
-    } else {
-      // console.log(namePreferredAxis(PreferredAxis.PERPENDICULAR);
-      this.node().setLayoutPreference(PreferredAxis.PERPENDICULAR);
-    }
+    this.node().pull(given);
   }
 
   /*
@@ -408,9 +385,5 @@ export default class DirectionCaret<Value> {
     if (this.node().hasNode(inDirection)) {
       return this.node().nodeAt(inDirection);
     }
-  }
-
-  onChange(changeListener: ChangeListener, thisArg?: object): void {
-    this.node().setChangeListener(changeListener, thisArg);
   }
 }

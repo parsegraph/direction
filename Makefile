@@ -7,8 +7,11 @@ SCRIPT_FILES = \
 	src/turn.ts \
 	src/DirectionCaret.ts \
 	src/DirectionNode.ts \
+	src/DirectionNodeSiblings.ts \
+	src/DirectionNodePaintGroup.ts \
 	src/Exception.ts \
 	src/LayoutState.ts \
+	src/NeighborData.ts \
 	src/NodePalette.ts \
 	src/Alignment.ts \
 	src/AxisOverlap.ts \

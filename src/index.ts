@@ -1,8 +1,10 @@
-import DirectionNode, {
-  ChangeListener,
-  DirtyListener,
-  NeighborData,
-} from "./DirectionNode";
+import NeighborData from "./NeighborData";
+import DirectionNodeSiblings, { SiblingNode } from "./DirectionNodeSiblings";
+import DirectionNodePaintGroup, {
+  PaintGroupNode,
+} from "./DirectionNodePaintGroup";
+import DirectionNode from "./DirectionNode";
+
 import DirectionCaret, { SHRINK_SCALE } from "./DirectionCaret";
 
 import NodePalette, {
@@ -162,6 +164,8 @@ export {
   nameFit,
   readFit,
   SHRINK_SCALE,
-  ChangeListener,
-  DirtyListener,
+  SiblingNode,
+  DirectionNodeSiblings,
+  DirectionNodePaintGroup,
+  PaintGroupNode,
 };
