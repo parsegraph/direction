@@ -620,7 +620,7 @@ describe("DirectionCaret", function () {
     const originalRoot = car.node();
     const midRoot = car.spawnMove("f", "b");
     car.spawnMove("f", "b");
-    const newRoot = car.node();
+    car.node();
     car.disconnect();
     if (originalRoot.siblings().next() != midRoot) {
       throw new Error("layoutAfter is invalid");
@@ -667,7 +667,6 @@ describe("DirectionCaret", function () {
 
   it("Disconnect complex test", function () {
     const car = makeCaret();
-    const originalRoot = car.node();
     car.spawnMove("f", "b");
     car.push();
     // console.log("NODE WITH CHILD", car.node());
@@ -686,7 +685,7 @@ describe("DirectionCaret", function () {
   it("Disconnect parent test, forward", function () {
     const car = makeCaret();
     const originalRoot = car.node();
-    const midRoot = car.spawnMove("f", "b");
+    car.spawnMove("f", "b");
     const newNode = makeCaret().node();
     originalRoot.connectNode(Direction.FORWARD, newNode);
     if (originalRoot.nodeAt(Direction.FORWARD) !== newNode) {
@@ -697,7 +696,7 @@ describe("DirectionCaret", function () {
   it("Disconnect parent test", function () {
     const car = makeCaret();
     const originalRoot = car.node();
-    const midRoot = car.spawnMove("i", "b");
+    car.spawnMove("i", "b");
     const newNode = makeCaret().node();
     originalRoot.connectNode(Direction.INWARD, newNode);
     if (originalRoot.nodeAt(Direction.INWARD) !== newNode) {
