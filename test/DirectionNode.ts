@@ -11,7 +11,7 @@ import {
   INWARD,
   PreferredAxis,
   namePreferredAxis,
-} from "../dist/parsegraph-direction";
+} from "../src/index";
 
 describe("DirectionNode", function () {
   it("can be constructed without a Type param", () => {

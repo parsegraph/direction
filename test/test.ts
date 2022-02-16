@@ -12,7 +12,7 @@ import {
   INWARD,
   PreferredAxis,
   namePreferredAxis,
-} from "../dist/parsegraph-direction";
+} from "../src/index";
 import { elapsed } from "parsegraph-timing";
 
 function makeCaret() {

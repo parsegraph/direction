@@ -11,7 +11,7 @@ import {
   INWARD,
   PreferredAxis,
   namePreferredAxis,
-} from "../dist/parsegraph-direction";
+} from "../src/index";
 
 describe("Caret", function () {
   it("can use a ", () => {
