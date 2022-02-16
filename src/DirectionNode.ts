@@ -39,20 +39,20 @@ import DirectionNodePaintGroup, {
 let nodeCount: number = 0;
 
 export default class DirectionNode<Value = any> implements PaintGroupNode {
-  private _id: string | number;
-  private _nodeFit: Fit;
-  private _rightToLeft: boolean;
-  private _layoutPreference: PreferredAxis;
-  private _scale: number;
-  private _value: Value;
-  private _layoutState: LayoutState;
+  _id: string | number;
+  _nodeFit: Fit;
+  _rightToLeft: boolean;
+  _layoutPreference: PreferredAxis;
+  _scale: number;
+  _value: Value;
+  _layoutState: LayoutState;
 
-  private _neighbors: NeighborData<DirectionNode<Value>>[];
-  private _parentNeighbor: NeighborData<DirectionNode<Value>>;
+  _neighbors: NeighborData<DirectionNode<Value>>[];
+  _parentNeighbor: NeighborData<DirectionNode<Value>>;
 
-  private _siblings: DirectionNodeSiblings<this>;
+  _siblings: DirectionNodeSiblings<this>;
   _paintGroup: DirectionNodePaintGroup<DirectionNode<Value>>;
-  private _paintGroupRoot: DirectionNode<Value>;
+  _paintGroupRoot: DirectionNode<Value>;
 
   constructor(initialVal: Value = null) {
     this._id = nodeCount++;
