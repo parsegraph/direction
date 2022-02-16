@@ -64,10 +64,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     this._layoutState = LayoutState.NEEDS_COMMIT;
 
     // Neighbors
-    this._neighbors = [];
-    for (let i = 0; i < NUM_DIRECTIONS; ++i) {
-      this._neighbors.push(null);
-    }
+    this._neighbors = new Array(NUM_DIRECTIONS);
     this._parentNeighbor = null;
 
     // Layout
