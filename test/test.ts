@@ -1,4 +1,4 @@
-import {expect, assert} from "chai";
+import { expect, assert } from "chai";
 import {
   Direction,
   DirectionNode,
@@ -87,7 +87,6 @@ describe("DirectionNode", function () {
     );
   });
 
-
   it("Viewport - Block with forward creased bud", function () {
     // Spawn the graph.
     const caret = makeCaret();
@@ -171,7 +170,10 @@ describe("DirectionNode", function () {
     expect(child.localPaintGroup()).to.equal(child.paintGroup());
 
     expect(root.localPaintGroup()).to.not.equal(null);
-    expect(root.localPaintGroup().next(), "Root's paint group should not be child").to.not.equal(child);
+    expect(
+      root.localPaintGroup().next(),
+      "Root's paint group should not be child"
+    ).to.not.equal(child);
 
     expect(root.localPaintGroup().next()).to.equal(root);
     expect(root.localPaintGroup().prev()).to.not.equal(child);

@@ -3,7 +3,7 @@ import Fit from "./Fit";
 let nodeCount: number = 0;
 
 interface StateNode {
-  layoutChanged():void;
+  layoutChanged(): void;
 }
 
 export default class DirectionNodeState<Value, T extends StateNode> {
@@ -78,4 +78,3 @@ export default class DirectionNodeState<Value, T extends StateNode> {
     this.node().layoutChanged();
   }
 }
-

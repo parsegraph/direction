@@ -1,5 +1,6 @@
 #!/bin/bash
 while true; do
-    npm run autotest
-    inotifywait -e MODIFY src test
+    make autotest
+    sleep 0.2
+    make wait
 done

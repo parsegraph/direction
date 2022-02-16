@@ -742,11 +742,11 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     this.state().setId(id);
   }
 
-  value():Value {
+  value(): Value {
     return this.hasState() ? this.state().value() : null;
   }
 
-  setValue(value:Value) {
+  setValue(value: Value) {
     this.state().setValue(value);
   }
 
@@ -775,9 +775,8 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
         inDirection as Alignment
       );
     }
-    this.ensureNeighbor(
-      inDirection as Direction
-    ).alignmentMode = newAlignmentMode;
+    this.ensureNeighbor(inDirection as Direction).alignmentMode =
+      newAlignmentMode;
     // console.log(nameNodeAlignment(newAlignmentMode));
     this.layoutChanged(inDirection as Direction);
   }
@@ -804,9 +803,8 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
         inDirection as AxisOverlap
       );
     }
-    this.ensureNeighbor(
-      inDirection as Direction
-    ).allowAxisOverlap = newAxisOverlap;
+    this.ensureNeighbor(inDirection as Direction).allowAxisOverlap =
+      newAxisOverlap;
     this.layoutChanged(inDirection as Direction);
   }
 
@@ -868,6 +866,8 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   // ///////////////////////////////////////////////////////////////////////////
 
   toString(): string {
-    return `[DirectionNode ${this.hasState() ? this.state().toString() : "<no state>"}]`;
+    return `[DirectionNode ${
+      this.hasState() ? this.state().toString() : "<no state>"
+    }]`;
   }
 }

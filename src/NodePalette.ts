@@ -8,7 +8,8 @@ export interface InplaceNodePalette<Value = any, Given = any> {
 }
 
 export class BasicNodePalette<Value = any, Given = any>
-  implements InplaceNodePalette<Value, Given> {
+  implements InplaceNodePalette<Value, Given>
+{
   _builder: NodePalette<Value, Given>;
 
   constructor(builder: NodePalette<Value, Given>) {
