@@ -8,6 +8,7 @@ SCRIPT_FILES = \
 	src/DirectionCaret.ts \
 	src/DirectionNode.ts \
 	src/DirectionNodeSiblings.ts \
+	src/DirectionNodeState.ts \
 	src/DirectionNodePaintGroup.ts \
 	src/Exception.ts \
 	src/LayoutState.ts \

@@ -4,6 +4,7 @@ import DirectionNodePaintGroup, {
   PaintGroupNode,
 } from "./DirectionNodePaintGroup";
 import DirectionNode from "./DirectionNode";
+import DirectionNodeState from "./DirectionNodeState";
 
 import DirectionCaret, { SHRINK_SCALE } from "./DirectionCaret";
 
@@ -167,5 +168,6 @@ export {
   SiblingNode,
   DirectionNodeSiblings,
   DirectionNodePaintGroup,
+  DirectionNodeState,
   PaintGroupNode,
 };

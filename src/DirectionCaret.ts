@@ -259,7 +259,7 @@ export default class DirectionCaret<Value> {
 
     this.node().setNodeAlignmentMode(inDirection, newAlignmentMode);
     if (newAlignmentMode != Alignment.NONE) {
-      this.node().setNodeFit(Fit.EXACT);
+      this.node().state().setNodeFit(Fit.EXACT);
     }
   }
 
@@ -287,7 +287,7 @@ export default class DirectionCaret<Value> {
       node = node.nodeAt(readDirection(inDirection));
     }
     if (node) {
-      node.setScale(SHRINK_SCALE);
+      node.state().setScale(SHRINK_SCALE);
     }
   }
 
@@ -297,7 +297,7 @@ export default class DirectionCaret<Value> {
       node = node.nodeAt(readDirection(inDirection));
     }
     if (node) {
-      node.setScale(1.0);
+      node.state().setScale(1.0);
     }
   }
 
@@ -306,7 +306,7 @@ export default class DirectionCaret<Value> {
     if (arguments.length > 0) {
       node = node.nodeAt(readDirection(inDirection));
     }
-    node.setNodeFit(Fit.EXACT);
+    node.state().setNodeFit(Fit.EXACT);
   }
 
   fitLoose(inDirection?: Direction | string): void {
@@ -314,7 +314,7 @@ export default class DirectionCaret<Value> {
     if (arguments.length > 0) {
       node = node.nodeAt(readDirection(inDirection));
     }
-    node.setNodeFit(Fit.LOOSE);
+    node.state().setNodeFit(Fit.LOOSE);
   }
 
   fitNaive(inDirection?: Direction | string): void {
@@ -322,7 +322,7 @@ export default class DirectionCaret<Value> {
     if (arguments.length > 0) {
       node = node.nodeAt(readDirection(inDirection));
     }
-    node.setNodeFit(Fit.NAIVE);
+    node.state().setNodeFit(Fit.NAIVE);
   }
 
   // ////////////////////////////////////////////////////////////////////////////
@@ -343,14 +343,14 @@ export default class DirectionCaret<Value> {
     const created = this.doSpawn(newType);
     this.node().connectNode(inDirection, created);
     created.setLayoutPreference(PreferredAxis.PERPENDICULAR);
-    created.setNodeFit(this.node().nodeFit());
+    created.state().setNodeFit(this.node().state().nodeFit());
 
     // Use the given alignment mode.
     if (newAlignmentMode !== undefined) {
       newAlignmentMode = readAlignment(newAlignmentMode);
       this.align(inDirection, newAlignmentMode);
       if (newAlignmentMode !== Alignment.NONE) {
-        this.node().setNodeFit(Fit.EXACT);
+        this.node().state().setNodeFit(Fit.EXACT);
       }
     }
 
