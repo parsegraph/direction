@@ -1,4 +1,4 @@
-import {DirectionNode} from ".";
+import { DirectionNode } from ".";
 
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.getElementById("demo");

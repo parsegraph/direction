@@ -1,16 +1,6 @@
-import { assert, expect } from "chai";
+import { assert } from "chai";
 import {
-  Direction,
-  DirectionNode,
-  readDirection,
   DirectionCaret,
-  FORWARD,
-  BACKWARD,
-  UPWARD,
-  DOWNWARD,
-  INWARD,
-  PreferredAxis,
-  namePreferredAxis,
 } from "../src/index";
 
 describe("Caret", function () {

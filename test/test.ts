@@ -826,7 +826,7 @@ describe("DirectionCaret", function () {
   });
 
   it("Disconnect parent test, creased removal with outer pg", function () {
-    let car = makeCaret();
+    const car = makeCaret();
     car.spawnMove("f", "s");
     const hello = new DirectionNode();
     car.node().connectNode(Direction.INWARD, hello);
@@ -834,7 +834,7 @@ describe("DirectionCaret", function () {
     const notime = new DirectionNode();
     hello.connectNode(Direction.FORWARD, notime);
 
-    let ccar = makeCaret();
+    const ccar = makeCaret();
     const there = ccar.spawnMove("i", "b");
     ccar.crease();
     car.connect("f", ccar.root());
@@ -850,13 +850,13 @@ describe("DirectionCaret", function () {
   });
 
   it("Layout disconnection test", function () {
-    let car = makeCaret();
+    const car = makeCaret();
     car.spawnMove("f", "b");
     // car is [car.root()]-[b]
 
-    let ccar = makeCaret();
+    const ccar = makeCaret();
     ccar.spawnMove("f", "b");
-    let n = ccar.spawnMove("i", "s");
+    const n = ccar.spawnMove("i", "s");
     ccar.crease();
     // ccar is [ccar.root()]-[[n]]
 
@@ -903,7 +903,7 @@ describe("DirectionCaret", function () {
       [n.id(), car.root().id()]
     );
 
-    //console.log("Testing layout disconnection");
+    // console.log("Testing layout disconnection");
 
     car.disconnect("f");
     // car is now [car.root()]
@@ -930,12 +930,12 @@ describe("DirectionCaret", function () {
   });
 
   it("Layout failing test", function () {
-    let car = makeCaret();
+    const car = makeCaret();
     car.spawnMove("f", "b");
 
     let n: DirectionNode;
     for (let i = 0; i < 5; ++i) {
-      let ccar = makeCaret();
+      const ccar = makeCaret();
       ccar.spawnMove("f", "b");
       n = ccar.spawnMove("i", "s");
       ccar.crease();
@@ -953,7 +953,7 @@ describe("DirectionCaret", function () {
   });
 
   it("Disconnection paint group test", function () {
-    let car = makeCaret();
+    const car = makeCaret();
     car.root().setId("root");
     const root = car.spawnMove("f", "b");
     const lisp = car.spawnMove("f", "s");
@@ -974,7 +974,7 @@ describe("DirectionCaret", function () {
     car.spawnMove("f", "b");
 
     r.disconnectNode(Direction.INWARD);
-    //assert.notEqual(car.root().paintGroup().next().id(), b.id(), "First paint group after disconnection must not be b");
+    // assert.notEqual(car.root().paintGroup().next().id(), b.id(), "First paint group after disconnection must not be b");
     assert.equal(
       car.root().paintGroup().next().id(),
       r.id(),
