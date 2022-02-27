@@ -6,7 +6,4 @@ module.exports = {
     demo: relDir("src/demo.ts"),
   },
   ...webpackConfig(false),
-  mode: "development",
-  devtool: "eval-source-map",
 };
-
