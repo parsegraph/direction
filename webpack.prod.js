@@ -5,7 +5,4 @@ module.exports = {
     index: relDir("src/index.ts"),
   },
   ...webpackConfig(true),
-  mode: "production",
-  devtool: false
 };
-
