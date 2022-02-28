@@ -1,21 +1,27 @@
 import Direction from "./Direction";
 
 export interface SiblingNode {
-  siblings(): DirectionNodeSiblings<this>;
-  nodeAt(inDirection: Direction): this;
+  id(): string | number;
+  siblings(): DirectionNodeSiblings;
+  forEachNode(cb: (n: SiblingNode) => void): void;
+  nodeAt(inDirection: Direction): SiblingNode;
   layoutOrder(): Direction[];
+  parentNode(): SiblingNode;
   parentDirection(): Direction;
   localPaintGroup(): any;
   paintGroup(): any;
   hasNode(inDirection: Direction): boolean;
+  setPaintGroupRoot(n: SiblingNode): void;
+  hasAncestor(n: SiblingNode): boolean;
+  isRoot(): boolean;
 }
 
-export default class DirectionNodeSiblings<T extends SiblingNode> {
-  _prev: T;
-  _next: T;
-  _node: T;
+export default class DirectionNodeSiblings {
+  _prev: SiblingNode;
+  _next: SiblingNode;
+  _node: SiblingNode;
 
-  constructor(node: T) {
+  constructor(node: SiblingNode) {
     this._node = node;
     this._prev = this._node;
     this._next = this._node;
@@ -26,12 +32,16 @@ export default class DirectionNodeSiblings<T extends SiblingNode> {
   }
 
   removeFromLayout(inDirection: Direction): void {
-    const disconnected: T = this.node().nodeAt(inDirection);
+    const disconnected: SiblingNode = this.node().nodeAt(inDirection);
     if (!disconnected) {
       return;
     }
-    const layoutBefore: T = this.node().siblings().earlier(inDirection);
-    const earliestDisc: T = disconnected.siblings().head(disconnected);
+    const layoutBefore: SiblingNode = this.node()
+      .siblings()
+      .earlier(inDirection);
+    const earliestDisc: SiblingNode = disconnected
+      .siblings()
+      .head(disconnected);
 
     if (layoutBefore) {
       this.connect(layoutBefore, disconnected.siblings().next());
@@ -44,24 +54,26 @@ export default class DirectionNodeSiblings<T extends SiblingNode> {
     this.connect(disconnected, earliestDisc);
   }
 
-  private connect(a: T, b: T): void {
+  private connect(a: SiblingNode, b: SiblingNode): void {
     // console.log("connecting " +  a.id() + " to " + b.id());
     a.siblings()._next = b;
     b.siblings()._prev = a;
   }
 
   insertIntoLayout(inDirection: Direction): void {
-    const node: T = this.node().nodeAt(inDirection);
+    const node: SiblingNode = this.node().nodeAt(inDirection);
     if (!node) {
       return;
     }
 
-    const nodeHead: T = node.siblings().head();
+    const nodeHead: SiblingNode = node.siblings().head();
 
-    const layoutAfter: T = this.node().siblings().later(inDirection);
-    const layoutBefore: T = this.node().siblings().earlier(inDirection);
+    const layoutAfter: SiblingNode = this.node().siblings().later(inDirection);
+    const layoutBefore: SiblingNode = this.node()
+      .siblings()
+      .earlier(inDirection);
 
-    const nodeTail: T = node;
+    const nodeTail: SiblingNode = node;
     // console.log(this + ".connectNode(" + nameDirection(inDirection) +
     //   ", " + node + ") layoutBefore=" +
     //   layoutBefore + " layoutAfter=" +
@@ -82,16 +94,16 @@ export default class DirectionNodeSiblings<T extends SiblingNode> {
     }
   }
 
-  next(): T {
+  next(): SiblingNode {
     return this._next;
   }
 
-  prev(): T {
+  prev(): SiblingNode {
     return this._prev;
   }
 
-  head(excludeThisNode?: T): T {
-    let deeplyLinked: T = this.node();
+  head(excludeThisNode?: SiblingNode): SiblingNode {
+    let deeplyLinked: SiblingNode = this.node();
     let foundOne;
     while (true) {
       foundOne = false;
@@ -117,7 +129,7 @@ export default class DirectionNodeSiblings<T extends SiblingNode> {
     return deeplyLinked;
   }
 
-  earlier(inDirection: Direction): T {
+  earlier(inDirection: Direction): SiblingNode {
     let layoutBefore;
     const dirs = this.node().layoutOrder();
     let pastDir = false;
@@ -144,7 +156,7 @@ export default class DirectionNodeSiblings<T extends SiblingNode> {
     return layoutBefore;
   }
 
-  later(inDirection: Direction): T {
+  later(inDirection: Direction): SiblingNode {
     let layoutAfter;
     const dirs = this.node().layoutOrder();
     let pastDir = false;

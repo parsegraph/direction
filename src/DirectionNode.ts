@@ -25,6 +25,8 @@ import Direction, {
   VERTICAL_ORDER,
 } from "./Direction";
 
+import {SiblingNode} from "./DirectionNodeSiblings";
+
 import LayoutState from "./LayoutState";
 import PreferredAxis from "./PreferredAxis";
 import Alignment from "./Alignment";
@@ -45,8 +47,8 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   _neighbors: NeighborData<DirectionNode<Value>>[];
   _parentNeighbor: NeighborData<DirectionNode<Value>>;
 
-  _siblings: DirectionNodeSiblings<this>;
-  _paintGroup: DirectionNodePaintGroup<DirectionNode<Value>>;
+  _siblings: DirectionNodeSiblings;
+  _paintGroup: DirectionNodePaintGroup;
   _paintGroupRoot: DirectionNode<Value>;
 
   constructor(initialVal: Value = null) {
@@ -58,9 +60,9 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     this._parentNeighbor = null;
 
     // Layout
-    this._siblings = new DirectionNodeSiblings<this>(this);
+    this._siblings = new DirectionNodeSiblings(this);
     this._paintGroupRoot = this;
-    this._paintGroup = new DirectionNodePaintGroup<DirectionNode<Value>>(
+    this._paintGroup = new DirectionNodePaintGroup(
       this,
       false
     );
@@ -174,12 +176,12 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   //
   // ///////////////////////////////////////////////////////////////////////////
 
-  siblings(): DirectionNodeSiblings<this> {
+  siblings(): DirectionNodeSiblings {
     return this._siblings;
   }
 
-  forEachNode(func: (node: this) => void): void {
-    let node = this;
+  forEachNode(func: (node: SiblingNode) => void): void {
+    let node:SiblingNode = this;
     do {
       func(node);
       node = node.siblings().prev();
@@ -431,11 +433,11 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   //
   // ///////////////////////////////////////////////////////////////////////////
 
-  localPaintGroup(): DirectionNodePaintGroup<DirectionNode<Value>> {
+  localPaintGroup(): DirectionNodePaintGroup {
     return this._paintGroup;
   }
 
-  paintGroup(): DirectionNodePaintGroup<DirectionNode<Value>> {
+  paintGroup(): DirectionNodePaintGroup {
     if (!this._paintGroup) {
       const node = this.paintGroupRoot();
       if (!node || node === this) {
@@ -513,7 +515,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     if (this.localPaintGroup()) {
       this.paintGroup().crease();
     } else {
-      this._paintGroup = new DirectionNodePaintGroup<DirectionNode<Value>>(
+      this._paintGroup = new DirectionNodePaintGroup(
         this,
         true
       );

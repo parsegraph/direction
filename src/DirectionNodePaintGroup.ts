@@ -1,28 +1,21 @@
-import Direction, { reverseDirection } from "./Direction";
+import { reverseDirection } from "./Direction";
 import { SiblingNode } from "./DirectionNodeSiblings";
 
 export interface PaintGroupNode extends SiblingNode {
-  parentDirection(): Direction;
-  isRoot(): boolean;
-  paintGroup(): DirectionNodePaintGroup<PaintGroupNode>;
-  parentNode(): PaintGroupNode;
+  paintGroup(): DirectionNodePaintGroup;
   layoutChanged(): void;
   findPaintGroup(): PaintGroupNode;
-  forEachNode(cb: (n: this) => void): void;
-  setPaintGroupRoot(n: this): void;
-  _paintGroup: DirectionNodePaintGroup<PaintGroupNode>;
-  hasAncestor(n: this): boolean;
-  id(): string | number;
+  _paintGroup: DirectionNodePaintGroup;
   findFirstPaintGroup(): PaintGroupNode;
 }
 
-export default class DirectionNodePaintGroup<T extends PaintGroupNode> {
+export default class DirectionNodePaintGroup {
   _next: PaintGroupNode;
   _prev: PaintGroupNode;
-  _node: T;
+  _node: PaintGroupNode;
   _explicit: boolean;
 
-  constructor(node: T, explicit: boolean) {
+  constructor(node: PaintGroupNode, explicit: boolean) {
     this._node = node;
     this._next = this._node;
     this._prev = this._node;
@@ -59,7 +52,7 @@ export default class DirectionNodePaintGroup<T extends PaintGroupNode> {
     this._explicit = false;
   }
 
-  firstAndLast(): [PaintGroupNode, PaintGroupNode] {
+  firstAndLast(): [SiblingNode, SiblingNode] {
     const pg = this.node().findPaintGroup();
     if (!pg.localPaintGroup()) {
       return [null, null];
@@ -99,7 +92,7 @@ export default class DirectionNodePaintGroup<T extends PaintGroupNode> {
     return `(Paint group: prev=${this._prev.id()} this=${this.node().id()} next=${this._next.id()})`;
   }
 
-  private connect(a: PaintGroupNode, b: PaintGroupNode): void {
+  private connect(a: SiblingNode, b: SiblingNode): void {
     (a === this.node() ? this : a.localPaintGroup())._next = b;
     (b === this.node() ? this : b.localPaintGroup())._prev = a;
   }
@@ -116,7 +109,7 @@ export default class DirectionNodePaintGroup<T extends PaintGroupNode> {
     return this._explicit;
   }
 
-  append(node: T) {
+  append(node: PaintGroupNode) {
     const paintGroupLast = this.prev();
     const nodeFirst = node.paintGroup().next();
     // console.log("Node", node.id());
@@ -127,7 +120,7 @@ export default class DirectionNodePaintGroup<T extends PaintGroupNode> {
     this.connect(node, this.node());
   }
 
-  merge(node: T) {
+  merge(node: PaintGroupNode) {
     const paintGroupLast = this.prev();
     const nodeFirst = node.paintGroup().next();
     const nodeLast = node.paintGroup().prev();
@@ -184,8 +177,8 @@ export default class DirectionNodePaintGroup<T extends PaintGroupNode> {
     this.node().layoutChanged();
   }
 
-  last(): PaintGroupNode {
-    let candidate: PaintGroupNode = this.node().siblings().prev();
+  last(): SiblingNode {
+    let candidate = this.node().siblings().prev();
     while (candidate !== this.node()) {
       if (candidate.localPaintGroup()) {
         break;
