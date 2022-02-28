@@ -4,7 +4,6 @@ import { SiblingNode } from "./DirectionNodeSiblings";
 export interface PaintGroupNode extends SiblingNode {
   paintGroup(): DirectionNodePaintGroup;
   layoutChanged(): void;
-  findPaintGroup(): PaintGroupNode;
   _paintGroup: DirectionNodePaintGroup;
   findFirstPaintGroup(): PaintGroupNode;
 }

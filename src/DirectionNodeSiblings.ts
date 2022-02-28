@@ -8,6 +8,7 @@ export interface SiblingNode {
   layoutOrder(): Direction[];
   parentNode(): SiblingNode;
   parentDirection(): Direction;
+  findPaintGroup(): SiblingNode;
   localPaintGroup(): any;
   paintGroup(): any;
   hasNode(inDirection: Direction): boolean;
