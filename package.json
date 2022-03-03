@@ -16,7 +16,7 @@
   "homepage": "https://github.com/parsegraph/direction#readme",
   "dependencies": {
     "parsegraph-generateid": "^1.4.8",
-    "parsegraph-timing": "^1.4.15"
+    "parsegraph-timing": "^1.4.16"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
