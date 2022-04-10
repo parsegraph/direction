@@ -386,4 +386,11 @@ export default class DirectionCaret<Value> {
       return this.node().nodeAt(inDirection);
     }
   }
+
+  id(val?: string | number) {
+    if (arguments.length === 0) {
+      return this.node().state().id();
+    }
+    this.node().state().setId(val);
+  }
 }
