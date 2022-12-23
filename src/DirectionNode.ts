@@ -25,7 +25,7 @@ import Direction, {
   VERTICAL_ORDER,
 } from "./Direction";
 
-import {SiblingNode} from "./DirectionNodeSiblings";
+import { SiblingNode } from "./DirectionNodeSiblings";
 
 import LayoutState from "./LayoutState";
 import PreferredAxis from "./PreferredAxis";
@@ -44,14 +44,14 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
 
   _state: DirectionNodeState<Value, DirectionNode<Value>>;
 
-  _neighbors: NeighborData<DirectionNode<Value>>[];
-  _parentNeighbor: NeighborData<DirectionNode<Value>>;
+  _neighbors: NeighborData<DirectionNode>[];
+  _parentNeighbor: NeighborData<DirectionNode>;
 
   _siblings: DirectionNodeSiblings;
   _paintGroup: DirectionNodePaintGroup;
-  _paintGroupRoot: DirectionNode<Value>;
+  _paintGroupRoot: DirectionNode;
 
-  constructor(initialVal: Value = null) {
+  constructor() {
     this._layoutPreference = PreferredAxis.HORIZONTAL;
     this._layoutState = LayoutState.NEEDS_COMMIT;
 
@@ -62,14 +62,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     // Layout
     this._siblings = new DirectionNodeSiblings(this);
     this._paintGroupRoot = this;
-    this._paintGroup = new DirectionNodePaintGroup(
-      this,
-      false
-    );
-
-    if (initialVal) {
-      this.state().setValue(initialVal);
-    }
+    this._paintGroup = new DirectionNodePaintGroup(this, false);
   }
 
   // ///////////////////////////////////////////////////////////////////////////
@@ -78,19 +71,19 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   //
   // ///////////////////////////////////////////////////////////////////////////
 
-  neighborAt(dir: Direction): NeighborData<DirectionNode<Value>> {
+  neighborAt(dir: Direction): NeighborData<DirectionNode> {
     return this._neighbors[dir];
   }
 
   protected createNeighborData(
     inDirection: Direction
-  ): NeighborData<DirectionNode<Value>> {
-    return new NeighborData<DirectionNode<Value>>(this, inDirection);
+  ): NeighborData<DirectionNode> {
+    return new NeighborData<DirectionNode>(this, inDirection);
   }
 
   protected ensureNeighbor(
     inDirection: Direction
-  ): NeighborData<DirectionNode<Value>> {
+  ): NeighborData<DirectionNode> {
     if (!this.neighborAt(inDirection)) {
       this._neighbors[inDirection] = this.createNeighborData(inDirection);
     }
@@ -103,7 +96,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   //
   // ///////////////////////////////////////////////////////////////////////////
 
-  parentNeighbor(): NeighborData<DirectionNode<Value>> {
+  parentNeighbor(): NeighborData<DirectionNode> {
     return this._parentNeighbor;
   }
 
@@ -114,23 +107,23 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     return reverseDirection(this.parentNeighbor().direction);
   }
 
-  nodeParent(): DirectionNode<Value> {
+  nodeParent(): DirectionNode {
     if (this.isRoot()) {
       throw createException(NODE_IS_ROOT);
     }
     return this.parentNeighbor().owner as this;
   }
 
-  parentNode(): DirectionNode<Value> {
+  parentNode(): DirectionNode {
     return this.nodeParent();
   }
 
-  parent(): DirectionNode<Value> {
+  parent(): DirectionNode {
     return this.nodeParent();
   }
 
   protected assignParent(
-    fromNode?: DirectionNode<Value>,
+    fromNode?: DirectionNode,
     parentDirection?: Direction
   ): void {
     if (arguments.length === 0 || !fromNode) {
@@ -150,8 +143,8 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   //
   // ///////////////////////////////////////////////////////////////////////////
 
-  root(): DirectionNode<Value> {
-    let p: DirectionNode<Value> = this;
+  root(): DirectionNode {
+    let p: DirectionNode = this;
     while (!p.isRoot()) {
       p = p.parentNode();
     }
@@ -181,7 +174,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   }
 
   forEachNode(func: (node: SiblingNode) => void): void {
-    let node:SiblingNode = this;
+    let node: SiblingNode = this;
     do {
       func(node);
       node = node.siblings().prev();
@@ -416,8 +409,8 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     }
   }
 
-  hasAncestor(parent: DirectionNode<Value>): boolean {
-    let candidate: DirectionNode<Value> = this;
+  hasAncestor(parent: DirectionNode): boolean {
+    let candidate: DirectionNode = this;
     while (!candidate.isRoot()) {
       if (candidate == parent) {
         return true;
@@ -459,9 +452,9 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     } while (node !== this);
   }
 
-  findPaintGroup(): DirectionNode<Value> {
+  findPaintGroup(): DirectionNode {
     if (!this.paintGroupRoot()) {
-      let node: DirectionNode<Value> = this;
+      let node: DirectionNode = this;
       while (!node.isRoot()) {
         if (node.localPaintGroup()) {
           break;
@@ -507,7 +500,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     return candidate;
   }
 
-  paintGroupRoot(): DirectionNode<Value> {
+  paintGroupRoot(): DirectionNode {
     return this._paintGroupRoot;
   }
 
@@ -515,10 +508,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     if (this.localPaintGroup()) {
       this.paintGroup().crease();
     } else {
-      this._paintGroup = new DirectionNodePaintGroup(
-        this,
-        true
-      );
+      this._paintGroup = new DirectionNodePaintGroup(this, true);
     }
   }
 
@@ -528,7 +518,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     }
   }
 
-  setPaintGroupRoot(pg: DirectionNode<Value>) {
+  setPaintGroupRoot(pg: DirectionNode) {
     if (!pg) {
       throw new Error("Refusing to set paint group root to null");
     }
@@ -561,7 +551,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
       throw createException(BAD_NODE_DIRECTION);
     }
 
-    let node: DirectionNode<Value> = this;
+    let node: DirectionNode = this;
     while (node !== null) {
       // console.log("Node " + node + " has layout changed");
       const oldLayoutState = node.getLayoutState();
@@ -587,10 +577,10 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   //
   // ///////////////////////////////////////////////////////////////////////////
 
-  connectNode(
+  connectNode<T>(
     inDirection: Direction,
-    node: DirectionNode<Value>
-  ): DirectionNode<Value> {
+    node: DirectionNode<T>
+  ): DirectionNode<T> {
     // console.log("Connecting " + node + " to " + this + " in the " +
     //   nameDirection(inDirection) + " direction.");
 
@@ -643,7 +633,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     return node;
   }
 
-  disconnectNode(inDirection?: Direction): DirectionNode<Value> {
+  disconnectNode(inDirection?: Direction): DirectionNode {
     if (arguments.length === 0) {
       if (this.isRoot()) {
         return this;

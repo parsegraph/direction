@@ -51,9 +51,11 @@ export default class DirectionCaret<Value> {
     if (this.palette()) {
       return this.palette().spawn(given);
     }
-    return given instanceof DirectionNode
-      ? (given as DirectionNode<Value>)
-      : new DirectionNode<Value>(given);
+    if (given instanceof DirectionNode) {
+      return given as DirectionNode<Value>;
+    }
+    const rv = new DirectionNode<Value>();
+    rv.setValue(given);
   }
 
   doReplace(node: DirectionNode<Value>, given?: any): void {
