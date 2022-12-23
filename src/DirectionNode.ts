@@ -381,15 +381,15 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     );
   }
 
-  nodeAt(atDirection: Direction): this {
+  nodeAt(atDirection: Direction): DirectionNode {
     const n = this.neighborAt(atDirection);
     if (!n) {
       if (this.parentNeighbor() && this.parentDirection() === atDirection) {
-        return this.parentNeighbor().owner as this;
+        return this.parentNeighbor().owner;
       }
       return null;
     }
-    return n.node as this;
+    return n.node;
   }
 
   eachChild(
