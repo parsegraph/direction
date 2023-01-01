@@ -1,5 +1,6 @@
 import { reverseDirection } from "./Direction";
 import { SiblingNode } from "./DirectionNodeSiblings";
+import { elapsed } from "parsegraph-timing";
 
 export interface PaintGroupNode extends SiblingNode {
   paintGroup(): DirectionNodePaintGroup;
@@ -45,6 +46,7 @@ export default class DirectionNodePaintGroup {
     }
     this.node().layoutChanged();
     this.node().forEachNode((n) => n.setPaintGroupRoot(this.node()));
+    this.verify();
   }
 
   clearExplicit() {
@@ -117,6 +119,7 @@ export default class DirectionNodePaintGroup {
     // console.log("Node first", nodeFirst.id());
     this.connect(paintGroupLast, nodeFirst);
     this.connect(node, this.node());
+    this.verify();
   }
 
   merge(node: PaintGroupNode) {
@@ -125,6 +128,7 @@ export default class DirectionNodePaintGroup {
     const nodeLast = node.paintGroup().prev();
     this.connect(paintGroupLast, nodeFirst);
     this.connect(nodeLast, this.node());
+    this.verify();
   }
 
   disconnect() {
@@ -139,6 +143,16 @@ export default class DirectionNodePaintGroup {
       this.node().paintGroup().next()
     );
     this.connect(this.node(), paintGroupFirst);
+    this.verify();
+  }
+
+  verify() {
+    const e = new Date();
+    for (let n = this.next(); n !== this.node(); n = n.paintGroup().next()) {
+      if (elapsed(e) > 5000) {
+        throw new Error();
+      }
+    }
   }
 
   crease() {
@@ -174,6 +188,7 @@ export default class DirectionNodePaintGroup {
     pg.forEachNode((n) => n.setPaintGroupRoot(pg));
     this.node()._paintGroup = null;
     this.node().layoutChanged();
+    this.verify();
   }
 
   last(): SiblingNode {

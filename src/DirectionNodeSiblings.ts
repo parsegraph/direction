@@ -1,3 +1,4 @@
+import { elapsed } from "parsegraph-timing";
 import Direction from "./Direction";
 
 export interface SiblingNode {
@@ -32,6 +33,15 @@ export default class DirectionNodeSiblings {
     return this._node;
   }
 
+  verify() {
+    const e = new Date();
+    for (let n = this.next(); n !== this.node(); n = n.siblings().next()) {
+      if (elapsed(e) > 5000) {
+        throw new Error();
+      }
+    }
+  }
+
   removeFromLayout(inDirection: Direction): void {
     const disconnected: SiblingNode = this.node().nodeAt(inDirection);
     if (!disconnected) {
@@ -53,6 +63,8 @@ export default class DirectionNodeSiblings {
       );
     }
     this.connect(disconnected, earliestDisc);
+    this.verify();
+    disconnected.siblings().verify();
   }
 
   private connect(a: SiblingNode, b: SiblingNode): void {
@@ -93,6 +105,7 @@ export default class DirectionNodeSiblings {
     } else {
       this.connect(nodeTail, this.node());
     }
+    this.verify();
   }
 
   next(): SiblingNode {
@@ -217,11 +230,12 @@ export default class DirectionNodeSiblings {
     if (!firstHorz || !firstVert) {
       return;
     }
-    const aa = firstHorz.siblings().prev();
-    const dd = lastVert.siblings().next();
-    this.connect(aa, firstVert);
-    this.connect(lastHorz, dd);
+    const firstHorzPrev = firstHorz.siblings().prev();
+    const lastVertNext = lastVert.siblings().next();
+    this.connect(firstHorzPrev, firstVert);
+    this.connect(lastHorz, lastVertNext);
     this.connect(lastVert, firstHorz);
+    this.verify();
   }
 
   vertToHorz() {
@@ -268,5 +282,16 @@ export default class DirectionNodeSiblings {
     this.connect(aa, firstHorz);
     this.connect(lastVert, dd);
     this.connect(lastHorz, firstVert);
+    this.verify();
+  }
+
+  dump(): SiblingNode[] {
+    const nodes: SiblingNode[] = [];
+    let node: SiblingNode = this.node();
+    do {
+      node = node.siblings().next();
+      nodes.push(node);
+    } while (node !== this.node());
+    return nodes;
   }
 }
