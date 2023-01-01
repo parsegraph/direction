@@ -56,6 +56,7 @@ export default class DirectionCaret<Value> {
     }
     const rv = new DirectionNode<Value>();
     rv.setValue(given);
+    return rv;
   }
 
   doReplace(node: DirectionNode<Value>, given?: any): void {
