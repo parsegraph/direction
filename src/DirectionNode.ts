@@ -670,17 +670,17 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
 
     if (disconnected.getLayoutPreference() === PreferredAxis.PARENT) {
       if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
-        disconnected.setLayoutPreference(PreferredAxis.VERTICAL);
+        disconnected._layoutPreference = PreferredAxis.VERTICAL;
       } else {
-        disconnected.setLayoutPreference(PreferredAxis.HORIZONTAL);
+        disconnected._layoutPreference = PreferredAxis.HORIZONTAL;
       }
     } else if (
       disconnected.getLayoutPreference() === PreferredAxis.PERPENDICULAR
     ) {
       if (Axis.VERTICAL === getDirectionAxis(inDirection)) {
-        disconnected.setLayoutPreference(PreferredAxis.HORIZONTAL);
+        disconnected._layoutPreference = PreferredAxis.HORIZONTAL;
       } else {
-        disconnected.setLayoutPreference(PreferredAxis.VERTICAL);
+        disconnected._layoutPreference = PreferredAxis.VERTICAL;
       }
     }
     this.layoutChanged(inDirection);
