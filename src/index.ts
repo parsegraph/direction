@@ -30,6 +30,7 @@ import Direction, {
   reverseDirection,
   isCardinalDirection,
   forEachCardinalDirection,
+  forEachDirection,
   alternateDirection,
 } from "./Direction";
 
@@ -147,6 +148,7 @@ export {
   getPerpendicularAxis,
   getPositiveDirection,
   getNegativeDirection,
+  forEachDirection,
   forEachCardinalDirection,
   isPositiveDirection,
   isNegativeDirection,

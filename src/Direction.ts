@@ -121,6 +121,15 @@ export function forEachCardinalDirection(func: Function, thisArg?: object) {
   func.call(thisArg, Direction.BACKWARD);
 }
 
+export function forEachDirection(func: Function, thisArg?: object) {
+  func.call(thisArg, Direction.DOWNWARD);
+  func.call(thisArg, Direction.UPWARD);
+  func.call(thisArg, Direction.FORWARD);
+  func.call(thisArg, Direction.BACKWARD);
+  func.call(thisArg, Direction.INWARD);
+  func.call(thisArg, Direction.OUTWARD);
+}
+
 export function alternateDirection(given: Direction): Direction {
   switch (given) {
     case Direction.DOWNWARD:
