@@ -23,6 +23,7 @@ import Direction, {
   reverseDirection,
   HORIZONTAL_ORDER,
   VERTICAL_ORDER,
+  forEachDirection
 } from "./Direction";
 
 import { SiblingNode } from "./DirectionNodeSiblings";
@@ -631,6 +632,22 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     this.layoutChanged(inDirection);
 
     return node;
+  }
+
+  disconnectChildren(): DirectionNode[] {
+    const nodes:DirectionNode[] = [];
+    forEachDirection((dir:Direction)=>{
+      if (dir === Direction.OUTWARD) {
+        return;
+      }
+      if (this.parentDirection() === dir) {
+        return;
+      }
+      if (this.hasNode(dir)) {
+        nodes.push(this.disconnectNode(dir));
+      }
+    });
+    return nodes;
   }
 
   disconnectNode(inDirection?: Direction): DirectionNode {
