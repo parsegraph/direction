@@ -3911,20 +3911,20 @@ parse5@^7.0.0, parse5@^7.1.1:
   dependencies:
     entities "^4.4.0"
 
-parsegraph-generateid@^1.4.9:
-  version "1.4.9"
-  resolved "https://registry.yarnpkg.com/parsegraph-generateid/-/parsegraph-generateid-1.4.9.tgz#b9f1744c015ab76b7b45c5975cdad8482d180ad0"
-  integrity sha512-NtlNpp7bNyp/NeTLi9nm3JWNQrBK2lqduUmcahXWAYTOUXEBdOOxIAZ4+WrBp62L0Un6HFzpmAWv3n1ruD1fIQ==
+parsegraph-generateid@^1.4.10:
+  version "1.4.10"
+  resolved "https://registry.yarnpkg.com/parsegraph-generateid/-/parsegraph-generateid-1.4.10.tgz#894cfed95860dd640749e963e38ba7263b608d0f"
+  integrity sha512-i+7bLDZtAA7MGARsSIsQ0ZsftDxswPkZe+CWbOOYxH043VMgoO/9mMR1Sgg4wNHSv5cf3SffDdahbV++zyhVPQ==
 
 parsegraph-gettimeinmillis@^1.4.7:
-  version "1.4.7"
-  resolved "https://registry.yarnpkg.com/parsegraph-gettimeinmillis/-/parsegraph-gettimeinmillis-1.4.7.tgz#ee0749d2cdac66c21c5d46f9cfc41b7adf562bd4"
-  integrity sha512-JssLleswIxH53iTWC8XZUw4grZp2lDdtl7NCYf50v5n2u1lGXpeRjn1JNW1td2iqlqAy3E/nzBXzDXZpQdMMsg==
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/parsegraph-gettimeinmillis/-/parsegraph-gettimeinmillis-1.4.8.tgz#96c8a39929ba01d0c9929807b3add5fc1ca85fc1"
+  integrity sha512-EG0qil/jdMWiFJuHbAxETxNUQD0/BPNejUDwJKt1ObqIjGkrQ0rIzFlYrt83W26TQdaEE+Hqm/Gl5o0869pNRQ==
 
 parsegraph-method@^1.4.23:
-  version "1.4.23"
-  resolved "https://registry.yarnpkg.com/parsegraph-method/-/parsegraph-method-1.4.23.tgz#4d343992401b6ee8438c81b916c8e6de6757807a"
-  integrity sha512-ObCyrlgH81A3QOjPo/eaw7t9e8I10f3vTUdecvtqdAcTsgPxB/yj9IzHefwvTItqCOOqqtYo8qhKs+juSlbNQw==
+  version "1.4.24"
+  resolved "https://registry.yarnpkg.com/parsegraph-method/-/parsegraph-method-1.4.24.tgz#95986b5b841f8d38a21233414ecbe12f05c2e918"
+  integrity sha512-SYcUPdmdrSV0GEkbAkTS41Q1i6ghTXxpLObyx6/urSCSu6t/RtOeiz6lkuAblbpQZj5Y8VEdyQ+hnItR25g6ow==
 
 parsegraph-timing@^1.4.17:
   version "1.4.17"

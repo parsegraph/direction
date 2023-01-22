@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/parsegraph/direction#readme",
   "dependencies": {
-    "parsegraph-generateid": "^1.4.9",
+    "parsegraph-generateid": "^1.4.10",
     "parsegraph-timing": "^1.4.17"
   },
   "devDependencies": {
