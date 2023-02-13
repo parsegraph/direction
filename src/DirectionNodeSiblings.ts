@@ -226,10 +226,14 @@ export default class DirectionNodeSiblings {
       firstVert = firstVert.siblings().head();
     }
     const lastVert = u || d;
-    // console.log("horzToVert exec");
     if (!firstHorz || !firstVert) {
       return;
     }
+
+    // Convert horizontal layout to vertical.
+    // Expected: [b, f, d, u, bud]
+    // Before: [d, u, b, f, bud]
+
     const firstHorzPrev = firstHorz.siblings().prev();
     const lastVertNext = lastVert.siblings().next();
     this.connect(firstHorzPrev, firstVert);
@@ -267,7 +271,6 @@ export default class DirectionNodeSiblings {
       firstVert = firstVert.siblings().head();
     }
     const lastVert = u || d;
-    // console.log("vertToHorz exec");
     if (!firstHorz || !firstVert) {
       return;
     }
