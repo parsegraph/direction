@@ -274,17 +274,21 @@ export default class DirectionNodeSiblings {
     if (!firstHorz || !firstVert) {
       return;
     }
-    const aa = firstHorz.siblings().prev();
-    const dd = lastVert.siblings().next();
-    // console.log("aa=" + aa.id());
-    // console.log("dd=" + dd.id());
-    // console.log("firstHorz=" + firstHorz.id());
-    // console.log("lastVert=" + lastVert.id());
-    // console.log("lastHorz=" + lastHorz.id());
-    // console.log("firstVert=" + firstVert.id());
-    this.connect(aa, firstHorz);
-    this.connect(lastVert, dd);
+
+    // Convert vertical layout to horizontal.
+    // Before: [d, u, b, f, bud]
+    // Expected: [b, f, d, u, bud]
+
+    // Connect the node previous to the first, to the first horizontal node.
+    this.connect(firstVert.siblings().prev(), firstHorz);
+
+    // Connect last vertical to the current last horizontal's next node.
+    this.connect(lastVert, lastHorz.siblings().next());
+
+    // Then take the last horizontal, which is now pointing to the same node
+    // and connect it to the first vertical.
     this.connect(lastHorz, firstVert);
+
     this.verify();
   }
 
