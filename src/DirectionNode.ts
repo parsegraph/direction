@@ -749,6 +749,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
 
   setId(id: string | number) {
     this.state().setId(id);
+    return this;
   }
 
   value(): Value {
