@@ -1,5 +1,8 @@
 import { assert } from "chai";
-import Direction, { PreferredAxis, DirectionNode, DirectionCaret } from "../src/index";
+import Direction, {
+  PreferredAxis,
+  DirectionNode,
+} from "../src/index";
 
 describe("DirectionNode", function () {
   it("can be constructed without a Type param", () => {
@@ -20,7 +23,6 @@ describe("DirectionNode", function () {
     bud.connectNode(Direction.BACKWARD, new DirectionNode().setId("b"));
     bud.connectNode(Direction.DOWNWARD, new DirectionNode().setId("d"));
     bud.connectNode(Direction.UPWARD, new DirectionNode().setId("u"));
-    console.log(bud.siblings().dump().map(n=>n.id()).join(", "))
     bud.setLayoutPreference(PreferredAxis.HORIZONTAL);
   });
 
@@ -31,7 +33,6 @@ describe("DirectionNode", function () {
     bud.connectNode(Direction.BACKWARD, new DirectionNode().setId("b"));
     bud.connectNode(Direction.DOWNWARD, new DirectionNode().setId("d"));
     bud.connectNode(Direction.UPWARD, new DirectionNode().setId("u"));
-    console.log(bud.siblings().dump().map(n=>n.id()).join(", "))
     bud.setLayoutPreference(PreferredAxis.VERTICAL);
   });
 });
