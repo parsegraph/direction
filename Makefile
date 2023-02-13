@@ -19,9 +19,9 @@ SCRIPT_FILES = \
 	src/Fit.ts \
 	src/NodePalette.ts \
 	src/demo.ts \
-	test/DirectionNode.ts \
 	test/test.ts \
-	test/Caret.ts
+	test/Caret.spec.ts \
+	test/DirectionNode.spec.ts
 
 EXTRA_SCRIPTS =
 
