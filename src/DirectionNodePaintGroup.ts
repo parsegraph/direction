@@ -206,8 +206,8 @@ export default class DirectionNodePaintGroup {
     const pgs: PaintGroupNode[] = [];
     let pg: PaintGroupNode = this.node();
     do {
-      pg = pg.paintGroup().next();
       pgs.push(pg);
+      pg = pg.paintGroup().next();
     } while (pg !== this.node());
     return pgs;
   }
