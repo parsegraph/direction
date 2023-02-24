@@ -511,8 +511,12 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     const otherPath = other.pathToRoot().reverse();
 
     // Find count in common
-    let numCommon = 0;
-    for(let numCommon = 0; numCommon < Math.min(otherPath.length, nodePath.length); ++numCommon) {
+    const numCommon = 0;
+    for (
+      let numCommon = 0;
+      numCommon < Math.min(otherPath.length, nodePath.length);
+      ++numCommon
+    ) {
       if (otherPath[numCommon] !== nodePath[numCommon]) {
         break;
       }
@@ -534,7 +538,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
 
     const findPaintIndex = (nodes: PaintGroupNode[]) => {
       return paintOrdering.indexOf(nodes[numCommon + 1].parentDirection());
-    }
+    };
     const nodePaintIndex = findPaintIndex(nodePath);
     const otherPaintIndex = findPaintIndex(otherPath);
 
@@ -556,8 +560,12 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     const otherPath = other.pathToRoot().reverse();
 
     // Find count in common
-    let numCommon = 0;
-    for(let numCommon = 0; numCommon < Math.min(otherPath.length, nodePath.length); ++numCommon) {
+    const numCommon = 0;
+    for (
+      let numCommon = 0;
+      numCommon < Math.min(otherPath.length, nodePath.length);
+      ++numCommon
+    ) {
       if (otherPath[numCommon] !== nodePath[numCommon]) {
         break;
       }
@@ -567,10 +575,12 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
       return Infinity;
     }
 
-    return (nodePath.length - numCommon) + (otherPath.length - numCommon);
+    return nodePath.length - numCommon + (otherPath.length - numCommon);
   }
 
-  findPaintGroupInsert(inserted: PaintGroupNode): [PaintGroupNode, PaintGroupNode] {
+  findPaintGroupInsert(
+    inserted: PaintGroupNode
+  ): [PaintGroupNode, PaintGroupNode] {
     if (!this.localPaintGroup()) {
       return this.paintGroup().node().findPaintGroupInsert(inserted);
     }
@@ -578,23 +588,32 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     const paintGroupLast = this;
 
     const paintGroupCandidates = [];
-    for(let n = paintGroupFirst; n != paintGroupLast; n = n.paintGroup().next()) {
+    for (
+      let n = paintGroupFirst;
+      n != paintGroupLast;
+      n = n.paintGroup().next()
+    ) {
       paintGroupCandidates.push(n);
     }
     paintGroupCandidates.push(paintGroupLast);
-    const paintGroupDistances = paintGroupCandidates.map(candidateNode => inserted.findDistance(candidateNode));
+    const paintGroupDistances = paintGroupCandidates.map((candidateNode) =>
+      inserted.findDistance(candidateNode)
+    );
 
-    const closestPaintGroupIndex = paintGroupDistances.reduce((lowestDistanceIndex, candDistance, index)=>{
-      if (lowestDistanceIndex === -1) {
-        return index;
-      }
+    const closestPaintGroupIndex = paintGroupDistances.reduce(
+      (lowestDistanceIndex, candDistance, index) => {
+        if (lowestDistanceIndex === -1) {
+          return index;
+        }
 
-      if (candDistance <= paintGroupDistances[lowestDistanceIndex]) {
-        return index;
-      }
+        if (candDistance <= paintGroupDistances[lowestDistanceIndex]) {
+          return index;
+        }
 
-      return lowestDistanceIndex;
-    }, -1);
+        return lowestDistanceIndex;
+      },
+      -1
+    );
 
     const closestPaintGroup = paintGroupCandidates[closestPaintGroupIndex];
 

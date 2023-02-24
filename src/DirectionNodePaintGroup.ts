@@ -7,7 +7,9 @@ export interface PaintGroupNode extends SiblingNode {
   layoutChanged(): void;
   _paintGroup: DirectionNodePaintGroup;
   findFirstPaintGroup(): PaintGroupNode;
-  findPaintGroupInsert(inserted: PaintGroupNode): [PaintGroupNode, PaintGroupNode];
+  findPaintGroupInsert(
+    inserted: PaintGroupNode
+  ): [PaintGroupNode, PaintGroupNode];
   findDistance(other: PaintGroupNode): number;
   pathToRoot(): PaintGroupNode[];
 }
