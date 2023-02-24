@@ -496,7 +496,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     return nodes;
   }
 
-  isPaintedBefore(other: DirectionNode): boolean {
+  isPaintedBefore(other: PaintGroupNode): boolean {
     if (this === other) {
       return false;
     }

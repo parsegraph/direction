@@ -12,6 +12,7 @@ export interface PaintGroupNode extends SiblingNode {
   ): [PaintGroupNode, PaintGroupNode];
   findDistance(other: PaintGroupNode): number;
   pathToRoot(): PaintGroupNode[];
+  isPaintedBefore(other: PaintGroupNode): boolean;
 }
 
 export default class DirectionNodePaintGroup {
