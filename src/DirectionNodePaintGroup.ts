@@ -7,6 +7,9 @@ export interface PaintGroupNode extends SiblingNode {
   layoutChanged(): void;
   _paintGroup: DirectionNodePaintGroup;
   findFirstPaintGroup(): PaintGroupNode;
+  findPaintGroupInsert(inserted: PaintGroupNode): [PaintGroupNode, PaintGroupNode];
+  findDistance(other: PaintGroupNode): number;
+  pathToRoot(): PaintGroupNode[];
 }
 
 export default class DirectionNodePaintGroup {
@@ -111,14 +114,10 @@ export default class DirectionNodePaintGroup {
   }
 
   append(node: PaintGroupNode) {
-    const paintGroupLast = this.prev();
+    const [prevNode, nextNode] = this.node().findPaintGroupInsert(node);
     const nodeFirst = node.paintGroup().next();
-    // console.log("Node", node.id());
-    // console.log("PG", pg.id());
-    // console.log("PG Last", paintGroupLast.id());
-    // console.log("Node first", nodeFirst.id());
-    this.connect(paintGroupLast, nodeFirst);
-    this.connect(node, this.node());
+    this.connect(prevNode, nodeFirst);
+    this.connect(node, nextNode);
     this.verify();
   }
 

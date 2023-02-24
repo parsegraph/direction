@@ -482,6 +482,128 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     return this.paintGroupRoot();
   }
 
+  pathToRoot(): PaintGroupNode[] {
+    const nodes = [];
+    let n: DirectionNode = this;
+    while (!n.isRoot()) {
+      nodes.push(n);
+      n = n.parentNode();
+    }
+
+    // Push root, too.
+    nodes.push(n);
+
+    return nodes;
+  }
+
+  isPaintedBefore(other: DirectionNode): boolean {
+    if (this === other) {
+      return false;
+    }
+    if (this.isRoot()) {
+      return false;
+    }
+    if (other.isRoot()) {
+      return true;
+    }
+
+    const nodePath = this.pathToRoot().reverse();
+    const otherPath = other.pathToRoot().reverse();
+
+    // Find count in common
+    let numCommon = 0;
+    for(let numCommon = 0; numCommon < Math.min(otherPath.length, nodePath.length); ++numCommon) {
+      if (otherPath[numCommon] !== nodePath[numCommon]) {
+        break;
+      }
+    }
+
+    if (numCommon === 0) {
+      return false;
+    }
+
+    const lastCommonParent = nodePath[numCommon];
+    if (lastCommonParent === this) {
+      return false;
+    }
+    if (lastCommonParent === other) {
+      return true;
+    }
+
+    const paintOrdering = lastCommonParent.layoutOrder();
+
+    const findPaintIndex = (nodes: PaintGroupNode[]) => {
+      return paintOrdering.indexOf(nodes[numCommon + 1].parentDirection());
+    }
+    const nodePaintIndex = findPaintIndex(nodePath);
+    const otherPaintIndex = findPaintIndex(otherPath);
+
+    return nodePaintIndex < otherPaintIndex;
+  }
+
+  isPaintedAfter(other: DirectionNode): boolean {
+    if (this === other) {
+      return false;
+    }
+    return !this.isPaintedBefore(other);
+  }
+
+  findDistance(other: PaintGroupNode): number {
+    if (this === other) {
+      return 0;
+    }
+    const nodePath = this.pathToRoot().reverse();
+    const otherPath = other.pathToRoot().reverse();
+
+    // Find count in common
+    let numCommon = 0;
+    for(let numCommon = 0; numCommon < Math.min(otherPath.length, nodePath.length); ++numCommon) {
+      if (otherPath[numCommon] !== nodePath[numCommon]) {
+        break;
+      }
+    }
+
+    if (numCommon === 0) {
+      return Infinity;
+    }
+
+    return (nodePath.length - numCommon) + (otherPath.length - numCommon);
+  }
+
+  findPaintGroupInsert(inserted: PaintGroupNode): [PaintGroupNode, PaintGroupNode] {
+    if (!this.localPaintGroup()) {
+      return this.paintGroup().node().findPaintGroupInsert(inserted);
+    }
+    const paintGroupFirst = this.findFirstPaintGroup();
+    const paintGroupLast = this;
+
+    const paintGroupCandidates = [];
+    for(let n = paintGroupFirst; n != paintGroupLast; n = n.paintGroup().next()) {
+      paintGroupCandidates.push(n);
+    }
+    paintGroupCandidates.push(paintGroupLast);
+    const paintGroupDistances = paintGroupCandidates.map(candidateNode => inserted.findDistance(candidateNode));
+
+    const closestPaintGroupIndex = paintGroupDistances.reduce((lowestDistanceIndex, candDistance, index)=>{
+      if (lowestDistanceIndex === -1) {
+        return index;
+      }
+
+      if (candDistance <= paintGroupDistances[lowestDistanceIndex]) {
+        return index;
+      }
+
+      return lowestDistanceIndex;
+    }, -1);
+
+    const closestPaintGroup = paintGroupCandidates[closestPaintGroupIndex];
+
+    if (closestPaintGroup.isPaintedBefore(inserted)) {
+      return [closestPaintGroup, closestPaintGroup.paintGroup().next()];
+    }
+    return [closestPaintGroup.paintGroup().prev(), closestPaintGroup];
+  }
+
   /**
    * Finds the first paint group to be drawn that is a descendant of this
    * node, or this node if no descendant is a paint group.
