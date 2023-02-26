@@ -39,6 +39,8 @@ import DirectionNodePaintGroup, {
 } from "./DirectionNodePaintGroup";
 import DirectionNodeState from "./DirectionNodeState";
 
+import { makeLimit } from './utils';
+
 export default class DirectionNode<Value = any> implements PaintGroupNode {
   _layoutPreference: PreferredAxis;
   _layoutState: LayoutState;
@@ -485,9 +487,12 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
   pathToRoot(): PaintGroupNode[] {
     const nodes = [];
     let n: DirectionNode = this;
+
+    const lim = makeLimit();
     while (!n.isRoot()) {
       nodes.push(n);
       n = n.parentNode();
+      lim();
     }
 
     // Push root, too.

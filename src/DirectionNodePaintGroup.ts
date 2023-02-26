@@ -1,6 +1,6 @@
 import { reverseDirection } from "./Direction";
 import { SiblingNode } from "./DirectionNodeSiblings";
-import { elapsed } from "parsegraph-timing";
+import { makeLimit } from './utils';
 
 export interface PaintGroupNode extends SiblingNode {
   paintGroup(): DirectionNodePaintGroup;
@@ -207,9 +207,11 @@ export default class DirectionNodePaintGroup {
   dump(): PaintGroupNode[] {
     const pgs: PaintGroupNode[] = [];
     let pg: PaintGroupNode = this.node();
+    const lim = makeLimit();
     do {
       pgs.push(pg);
       pg = pg.paintGroup().next();
+      lim();
     } while (pg !== this.node());
     return pgs;
   }
