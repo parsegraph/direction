@@ -550,10 +550,12 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     const paintOrdering = lastCommonParent.layoutOrder();
 
     const findPaintIndex = (nodes: PaintGroupNode[]) => {
-      return paintOrdering.indexOf(nodes[numCommon + 1].parentDirection());
+      return paintOrdering.indexOf(reverseDirection(nodes[numCommon + 1].parentDirection()));
     };
     const nodePaintIndex = findPaintIndex(nodePath);
     const otherPaintIndex = findPaintIndex(otherPath);
+
+    //console.log("Node index: ", nodePaintIndex, "Other index:", otherPaintIndex);
 
     return nodePaintIndex < otherPaintIndex;
   }
