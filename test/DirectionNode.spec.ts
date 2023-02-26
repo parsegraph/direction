@@ -13,6 +13,51 @@ describe("DirectionNode", function () {
     assert.equal("Hey", n.value());
   });
 
+  it("can handle paint group array creasing", () => {
+    const root = new DirectionNode<string>().setId("root");
+
+    const arrNode = new DirectionNode<string>().setId("main-array");
+    root.connectNode(Direction.FORWARD, arrNode);
+    const beforeBud = new DirectionNode().setId(`before-bud`);
+    root.connectNode(Direction.INWARD, beforeBud);
+
+    let last = root;
+    let next = root;
+
+    const blocks = [];
+    for (let i = 0; i < 2; ++i) {
+      const b = new DirectionNode<string>().setId(`block-${i}`);
+      blocks.push(b);
+      const afterBud = new DirectionNode().setId(`${i}-after-bud`);
+      b.connectNode(Direction.FORWARD, afterBud);
+      next.connectNode(Direction.FORWARD, b);
+      last = next;
+      next = afterBud;
+    }
+
+    const inner = new DirectionNode<string>().setId("last-inward");
+    inner.crease();
+    blocks[blocks.length - 1].connectNode(Direction.INWARD, inner);
+
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual(["root", "last-inward"]);
+
+    const inner2 = new DirectionNode<string>().setId("next-last-inward");
+    inner2.crease();
+    blocks[blocks.length - 2].connectNode(Direction.INWARD, inner2);
+
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual(["root", "next-last-inward", "last-inward"]);
+  });
+
   it("can handle paint group creasing, simple", () => {
     const root = new DirectionNode<string>().setId("root");
 
