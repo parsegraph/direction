@@ -793,8 +793,8 @@ that is still a descendent of this node.
     node.assignParent(this, inDirection);
 
     if (node.paintGroup().explicit()) {
-      // console.log("Connecting local paint group");
       const pg = this.findPaintGroup();
+      //console.log("Connecting local paint group ", node.id(), "to", pg.id());
       pg.paintGroup().append(node);
     } else {
       this.siblings().insertIntoLayout(inDirection);
