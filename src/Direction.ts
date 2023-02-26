@@ -14,20 +14,20 @@ export default Direction;
 export const NUM_DIRECTIONS = 6;
 
 export const HORIZONTAL_ORDER: Direction[] = [
+  Direction.INWARD,
   Direction.BACKWARD,
   Direction.FORWARD,
   Direction.DOWNWARD,
   Direction.UPWARD,
-  Direction.INWARD,
   Direction.OUTWARD,
 ];
 
 export const VERTICAL_ORDER: Direction[] = [
+  Direction.INWARD,
   Direction.DOWNWARD,
   Direction.UPWARD,
   Direction.BACKWARD,
   Direction.FORWARD,
-  Direction.INWARD,
   Direction.OUTWARD,
 ];
 
