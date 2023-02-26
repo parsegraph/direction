@@ -149,11 +149,14 @@ export default class DirectionNodePaintGroup {
   }
 
   verify() {
-    const e = new Date();
+    const lim = makeLimit();
     for (let n = this.next(); n !== this.node(); n = n.paintGroup().next()) {
-      if (elapsed(e) > 5000) {
-        throw new Error();
-      }
+      //console.log(n.id());
+      lim();
+    }
+    for (let n = this.prev(); n !== this.node(); n = n.paintGroup().prev()) {
+      //console.log(n.id());
+      lim();
     }
   }
 
