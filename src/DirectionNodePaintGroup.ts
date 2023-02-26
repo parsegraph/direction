@@ -6,13 +6,13 @@ export interface PaintGroupNode extends SiblingNode {
   paintGroup(): DirectionNodePaintGroup;
   layoutChanged(): void;
   _paintGroup: DirectionNodePaintGroup;
-  findFirstPaintGroup(): PaintGroupNode;
+  getLastPaintGroup(): PaintGroupNode;
   findPaintGroupInsert(
     inserted: PaintGroupNode
   ): [PaintGroupNode, PaintGroupNode];
   findDistance(other: PaintGroupNode): number;
   pathToRoot(): PaintGroupNode[];
-  isPaintedBefore(other: PaintGroupNode): boolean;
+  comesBefore(other: PaintGroupNode): boolean;
 }
 
 export default class DirectionNodePaintGroup {
@@ -45,10 +45,10 @@ export default class DirectionNodePaintGroup {
         .removeFromLayout(reverseDirection(this.node().parentDirection()));
 
       // Connect this node's first and last paint groups to this node.
-      const paintGroupFirst = this.node().findFirstPaintGroup();
       const parentsPaintGroup = this.node().parentNode().paintGroup();
-      this.connect(parentsPaintGroup.prev(), paintGroupFirst);
-      this.connect(this.node(), parentsPaintGroup.node());
+      const [prevNode, nextNode] = parentsPaintGroup.node().findPaintGroupInsert(this.node());
+      this.connect(prevNode, this.node());
+      this.connect(this.node(), nextNode);
     }
     this.node().layoutChanged();
     this.node().forEachNode((n) => n.setPaintGroupRoot(this.node()));
@@ -66,7 +66,7 @@ export default class DirectionNodePaintGroup {
     }
     let lastPaintGroup: PaintGroupNode = null;
     let firstPaintGroup: PaintGroupNode = null;
-    for (let n = pg.paintGroup().prev(); n != pg; n = n.paintGroup().prev()) {
+    for (let n = pg.paintGroup().next(); n != pg; n = n.paintGroup().next()) {
       // console.log("First and last iteration. n=" + n.id());
       if (!n.hasAncestor(pg)) {
         break;
@@ -118,33 +118,34 @@ export default class DirectionNodePaintGroup {
 
   append(node: PaintGroupNode) {
     const [prevNode, nextNode] = this.node().findPaintGroupInsert(node);
-    const nodeFirst = node.paintGroup().next();
-    this.connect(prevNode, nodeFirst);
-    this.connect(node, nextNode);
+    const nodeLast = node.getLastPaintGroup();
+    //console.log("Append", node.id(), "to", nodeLast.id(), "between", prevNode.id(), "and", nextNode.id());
+    this.connect(prevNode, node);
+    this.connect(nodeLast, nextNode);
     this.verify();
   }
 
   merge(node: PaintGroupNode) {
-    const paintGroupLast = this.prev();
+    const [prevNode, nextNode] = this.node().findPaintGroupInsert(node);
+    const paintGroupLast = prevNode;
     const nodeFirst = node.paintGroup().next();
     const nodeLast = node.paintGroup().prev();
+    //console.log("Merge", node.id(), "between", paintGroupLast.id(), "and", nextNode.id());
     this.connect(paintGroupLast, nodeFirst);
-    this.connect(nodeLast, this.node());
+    this.connect(nodeLast, nextNode);
     this.verify();
   }
 
   disconnect() {
-    const paintGroupFirst = this.node().findFirstPaintGroup();
-    /* console.log(
-      "First paint group",
-      paintGroupFirst.id(),
-      paintGroupFirst.prevPaintGroup().id()
-    );*/
+    const paintGroupLast = this.node().getLastPaintGroup();
+
+    //console.log("Disconnecting paintgroups ", this.node().id(), "to", paintGroupLast.id(), "from layout");
+
     this.connect(
-      paintGroupFirst.paintGroup().prev(),
-      this.node().paintGroup().next()
+      this.node().paintGroup().prev(),
+      paintGroupLast.paintGroup().next()
     );
-    this.connect(this.node(), paintGroupFirst);
+    this.connect(paintGroupLast, this.node());
     this.verify();
   }
 

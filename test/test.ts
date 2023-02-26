@@ -248,24 +248,25 @@ describe("DirectionCaret", function () {
     const fifth = caret.spawnMove(Direction.DOWNWARD);
     fifth.setId("fifth");
     first.crease();
+    assert.equal(caret.root().paintGroup().dump()[1].id(), first.id());
     third.crease();
     const pgs = caret.root().paintGroup().dump();
-    if (pgs[0] !== third) {
-      console.log(pgs);
-      throw new Error(
-        "First paint group must be " + third + " but was " + pgs[0]
-      );
-    }
     if (pgs[1] !== first) {
-      console.log(pgs);
+      //console.log(pgs);
       throw new Error(
-        "Second paint group must be " + first + " but was " + pgs[1]
+        "Second paint group must be " + first.id() + " but was " + pgs[1].id()
       );
     }
-    if (pgs[2] !== caret.root()) {
-      console.log(pgs);
+    if (pgs[2] !== third) {
+      //console.log(pgs);
       throw new Error(
-        "Third paint group must be " + caret.root() + " but was " + pgs[2]
+        "Third paint group must be " + third + " but was " + pgs[2]
+      );
+    }
+    if (pgs[0] !== caret.root()) {
+      //console.log(pgs);
+      throw new Error(
+        "First paint group must be " + caret.root() + " but was " + pgs[0]
       );
     }
     // console.log("Multiple crease DONE");
@@ -309,21 +310,21 @@ describe("DirectionCaret", function () {
     cnode.setId("cnode");
     car.crease();
     if (root.siblings().next() !== root) {
-      console.log("root next: " + root.paintGroup().next().id());
-      console.log("bnode next: " + bnode.paintGroup().next().id());
-      console.log("cnode next: " + cnode.paintGroup().next().id());
+      //console.log("root next: " + root.paintGroup().next().id());
+      //console.log("bnode next: " + bnode.paintGroup().next().id());
+      //console.log("cnode next: " + cnode.paintGroup().next().id());
       throw new Error(
         "root's next layout node must be itself but was " +
           root.siblings().next()
       );
     }
-    if (root.paintGroup().next() !== cnode) {
-      console.log(root);
-      console.log(bnode);
-      console.log(cnode);
+    if (root.paintGroup().next() !== bnode) {
+      //console.log(root);
+      //console.log(bnode);
+      //console.log(cnode);
       throw new Error(
-        "root's next paint group must be cnode but was " +
-          root.paintGroup().next()
+        "root's next paint group must be bnode but was " +
+          root.paintGroup().next().id()
       );
     }
   });
@@ -707,40 +708,46 @@ describe("DirectionCaret", function () {
   });
 
   it("Disconnect parent test", function () {
-    const n = new DirectionNode();
-    const b = new DirectionNode();
+    const n = new DirectionNode().setId("n");
+    const b = new DirectionNode().setId("b");
     b.crease();
     n.connectNode(Direction.INWARD, b);
 
-    const a = new DirectionNode();
-    const r = new DirectionNode();
+    const a = new DirectionNode().setId("a");
+    const r = new DirectionNode().setId("r");
     r.crease();
     a.connectNode(Direction.INWARD, r);
     r.connectNode(Direction.INWARD, b);
 
-    if (a.paintGroup().next() !== b) {
+    // a > r > b
+
+    if (a.paintGroup().next() !== r) {
       throw new Error(
-        "Wanted " + b.id() + " but got " + a.paintGroup().next().id()
+        "Wanted " + r.id() + " but got " + a.paintGroup().next().id()
       );
     }
-    if (b.paintGroup().next() !== r) {
-      throw new Error(
-        "Wanted " +
-          r.id() +
-          " but got " +
-          b.paintGroup().next().id() +
-          ", b=" +
-          b.id()
-      );
-    }
-    if (r.paintGroup().next() !== a) {
+    if (b.paintGroup().next() !== a) {
       throw new Error(
         "Wanted " +
           a.id() +
           " but got " +
-          r.paintGroup().next().id() +
-          ", b=" +
-          b.id()
+          b.paintGroup().next().id()
+      );
+    }
+    if (r.paintGroup().next() !== b) {
+      throw new Error(
+        "Wanted " +
+          b.id() +
+          " but got " +
+          r.paintGroup().next().id()
+      );
+    }
+    if (n.paintGroup().next() !== n) {
+      throw new Error(
+        "Wanted " +
+          n.id() +
+          " but got " +
+          n.paintGroup().next().id()
       );
     }
   });
@@ -762,7 +769,7 @@ describe("DirectionCaret", function () {
     const midRoot = car.spawnMove("i", "b");
     car.crease();
     let pgs = originalRoot.paintGroup().dump();
-    assert.deepEqual(pgs, [midRoot, originalRoot]);
+    assert.deepEqual(pgs, [originalRoot, midRoot]);
     const newNode = makeCaret().spawnMove("i", "b");
     newNode.crease();
     originalRoot.connectNode(Direction.INWARD, newNode);
@@ -772,24 +779,86 @@ describe("DirectionCaret", function () {
     pgs = originalRoot.paintGroup().dump();
     assert.deepEqual(
       pgs.map((n) => n.id()),
-      [newNode.id(), originalRoot.id()]
+      [originalRoot.id(), newNode.id()]
     );
+  });
+
+  it("Painted before, complex creased removal", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    originalRoot.setId("originalRoot");
+    const midRoot = car.spawnMove("i", "b");
+    midRoot.setId("midRoot");
+    assert.isTrue(originalRoot.comesBefore(midRoot));
+    car.crease();
+    const newNode = makeCaret().spawnMove("i", "b");
+    newNode.setId("newNode");
+    newNode.crease();
+    midRoot.connectNode(Direction.INWARD, newNode);
+    //assert.isTrue(newNode.comesBefore(midRoot));
   });
 
   it("Disconnect parent test, complex creased removal", function () {
     const car = makeCaret();
     const originalRoot = car.node();
+    originalRoot.setId("originalRoot");
     const midRoot = car.spawnMove("i", "b");
+    midRoot.setId("midRoot");
     car.crease();
     let pgs = originalRoot.paintGroup().dump();
-    assert.deepEqual(pgs, [midRoot, originalRoot]);
+    assert.deepEqual(pgs, [originalRoot, midRoot]);
     const newNode = makeCaret().spawnMove("i", "b");
+    newNode.setId("newNode");
     newNode.crease();
     midRoot.connectNode(Direction.INWARD, newNode);
     pgs = originalRoot.paintGroup().dump();
     assert.deepEqual(
       pgs.map((n) => n.id()),
-      [newNode.id(), midRoot.id(), originalRoot.id()]
+      [originalRoot.id(), midRoot.id(), newNode.id()]
+    );
+  });
+
+  it("Disconnect parent test 2, complex creased removal", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    originalRoot.setId("originalRoot");
+    const midRoot = car.spawnMove("i", "b");
+    midRoot.setId("midRoot");
+    car.crease();
+    let pgs = originalRoot.paintGroup().dump();
+    assert.deepEqual(pgs, [originalRoot, midRoot]);
+    const newNode = makeCaret().spawnMove("i", "b");
+    newNode.setId("newNode");
+    newNode.crease();
+    newNode.root().setId("newNode-root");
+    midRoot.connectNode(Direction.INWARD, newNode.root());
+    pgs = originalRoot.paintGroup().dump();
+    assert.deepEqual(
+      pgs.map((n) => n.id()),
+      [originalRoot.id(), midRoot.id(), newNode.id()]
+    );
+  });
+
+  it("Disconnect parent test 3, complex creased removal", function () {
+    const car = makeCaret();
+    const originalRoot = car.node();
+    originalRoot.setId("originalRoot");
+
+    const expected = [originalRoot.id()];
+    for(let i = 0; i < 10; ++i) {
+      car.spawnMove('d', 'u');
+      car.pull('f');
+      const newNode = makeCaret().spawnMove("i", "b");
+      newNode.setId("newNode-" + i);
+      newNode.crease();
+      newNode.root().setId("newNode-root-" + i);
+      expected.push(newNode.id());
+      car.connect('f', newNode.root());
+    }
+    const pgs = originalRoot.paintGroup().dump();
+    assert.deepEqual(
+      pgs.map((n) => n.id()),
+      expected
     );
   });
 
@@ -802,7 +871,7 @@ describe("DirectionCaret", function () {
     let pgs = car.root().paintGroup().dump();
     assert.deepEqual(
       pgs.map((n) => n.id()),
-      [newNode.id(), midRoot.id(), car.root().id()]
+      [car.root().id(), midRoot.id(), newNode.id()]
     );
 
     midRoot.disconnectNode();
@@ -811,17 +880,17 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [newNode.id(), midRoot.id()]
+      [midRoot.id(), newNode.id()]
     );
 
     car = makeCaret();
-    const originalRoot = car.node();
+    const newRoot = car.node();
     car.connect("i", midRoot);
 
     pgs = car.root().paintGroup().dump();
     assert.deepEqual(
       pgs.map((n) => n.id()),
-      [newNode.id(), midRoot.id(), originalRoot.id()]
+      [newRoot.id(), midRoot.id(), newNode.id()]
     );
   });
 
@@ -845,7 +914,7 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [there.id(), car.root().id()]
+      [car.root().id(), there.id()]
     );
   });
 
@@ -875,7 +944,7 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [n.id(), ccar.root().id()],
+      [ccar.root().id(), n.id()],
       "ccar should have itself and n as paint groups"
     );
 
@@ -900,7 +969,7 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [n.id(), car.root().id()]
+      [car.root().id(), n.id()]
     );
 
     // console.log("Testing layout disconnection");
@@ -914,7 +983,7 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [n.id(), ccar.root().id()],
+      [ccar.root().id(), n.id()],
       "ccar should have itself and n as paint groups"
     );
 
@@ -948,7 +1017,7 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [n.id(), car.root().id()]
+      [car.root().id(), n.id()]
     );
   });
 
@@ -989,8 +1058,13 @@ describe("DirectionCaret", function () {
     r.connectNode(Direction.INWARD, c);
     assert.equal(
       c.paintGroup().next().id(),
-      r.id(),
-      "C after connection should go to R"
+      car.root().id(),
+      "C after connection should go to root"
+    );
+    assert.equal(
+      r.paintGroup().next().id(),
+      c.id(),
+      "R after C's inward connection should go to C"
     );
 
     assert.notEqual(
@@ -1000,14 +1074,18 @@ describe("DirectionCaret", function () {
     );
     assert.equal(
       car.root().paintGroup().next().id(),
-      c.id(),
-      "First paint group is c"
+      r.id(),
+      "First paint group is r"
     );
-    assert.equal(c.paintGroup().next().id(), r.id(), "Second paint group is r");
     assert.equal(
       r.paintGroup().next().id(),
+      c.id(),
+      "Second paint group is c"
+    );
+    assert.equal(
+      c.paintGroup().next().id(),
       car.root().id(),
-      "Third paint group is root"
+      "Paint group after c is root"
     );
     root.connectNode(Direction.FORWARD, lisp);
 
@@ -1017,7 +1095,7 @@ describe("DirectionCaret", function () {
         .paintGroup()
         .dump()
         .map((n) => n.id()),
-      [c.id(), r.id(), car.root().id()]
+      [car.root().id(), r.id(), c.id()]
     );
   });
 });

@@ -13,11 +13,11 @@ describe("DirectionNode", function () {
     assert.equal("Hey", n.value());
   });
 
-  it("can handle paint group creasing", () => {
+  it("can handle paint group creasing, simple", () => {
     const root = new DirectionNode<string>().setId("root");
 
     const makeBlock = (name: string) => {
-      const node = new DirectionNode<string>().setId(name + " block");
+      const node = new DirectionNode<string>().setId(name + "block");
       const inner = new DirectionNode<string>().setId(name + "inward");
       inner.crease();
       node.connectNode(Direction.INWARD, inner);
@@ -26,7 +26,40 @@ describe("DirectionNode", function () {
 
     let last = root;
     let next = root;
-    for (let i = 0; i < 5; ++i) {
+    for (let i = 0; i < 2; ++i) {
+      const b = makeBlock(String(i));
+      const bud = new DirectionNode().setId(`${i} bud`);
+      bud.connectNode(Direction.FORWARD, b);
+      // b.crease();
+      next.connectNode(Direction.DOWNWARD, bud);
+      last = next;
+      next = bud;
+    }
+
+    expect(last.findDistance(next)).toEqual(1);
+
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual(["root", "0inward", "1inward"]);
+  });
+
+  it("can handle paint group creasing", () => {
+    const root = new DirectionNode<string>().setId("root");
+
+    const makeBlock = (name: string) => {
+      const node = new DirectionNode<string>().setId(name + "block");
+      const inner = new DirectionNode<string>().setId(name + "inward");
+      inner.crease();
+      node.connectNode(Direction.INWARD, inner);
+      return node;
+    };
+
+    let last = root;
+    let next = root;
+    for (let i = 0; i < 4; ++i) {
       const b = makeBlock(String(i));
       const bud = new DirectionNode().setId(`${i} bud`);
       bud.connectNode(Direction.FORWARD, b);
@@ -41,8 +74,29 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward", "3inward", "4inward"]);
+    ).toEqual(["root", "0inward", "1inward", "2inward", "3inward"]);
 
+    expect(next.nodeAt(Direction.FORWARD).id()).toEqual('3block');
+    next.nodeAt(Direction.FORWARD).crease();
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual(["root", "0inward", "1inward", "2inward", "3block", "3inward"]);
+    next.disconnectNode(Direction.FORWARD);
+    root.paintGroup().verify();
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "2inward"
+    ]);
     const spawned = makeBlock("spawned");
     next.connectNode(Direction.FORWARD, spawned);
     expect(
@@ -55,7 +109,6 @@ describe("DirectionNode", function () {
       "0inward",
       "1inward",
       "2inward",
-      "3inward",
       "spawnedinward",
     ]);
     spawned.crease();
@@ -69,9 +122,8 @@ describe("DirectionNode", function () {
       "0inward",
       "1inward",
       "2inward",
-      "3inward",
-      "spawnedinward",
-      "spawned block",
+      "spawnedblock",
+      "spawnedinward"
     ]);
     next.disconnectNode(Direction.FORWARD);
     expect(
@@ -79,7 +131,12 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward", "3inward"]);
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "2inward"
+    ]);
     next.connectNode(Direction.FORWARD, spawned);
     expect(
       root
@@ -91,9 +148,8 @@ describe("DirectionNode", function () {
       "0inward",
       "1inward",
       "2inward",
-      "3inward",
+      "spawnedblock",
       "spawnedinward",
-      "spawned block",
     ]);
     spawned.uncrease();
     expect(
@@ -106,8 +162,7 @@ describe("DirectionNode", function () {
       "0inward",
       "1inward",
       "2inward",
-      "3inward",
-      "spawnedinward",
+      "spawnedinward"
     ]);
     next.disconnectNode(Direction.FORWARD);
     expect(
@@ -115,7 +170,12 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward", "3inward"]);
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "2inward"
+    ]);
 
     last.disconnectNode(Direction.FORWARD);
     expect(
@@ -123,7 +183,11 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward"]);
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+    ]);
     const spawned2 = makeBlock("spawned2");
     // spawned2.crease();
     last.connectNode(Direction.FORWARD, spawned2);
@@ -133,7 +197,12 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward", "spawned2inward"]);
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "spawned2inward"
+    ]);
 
     spawned2.crease();
 
@@ -146,9 +215,8 @@ describe("DirectionNode", function () {
       "root",
       "0inward",
       "1inward",
-      "2inward",
+      "spawned2block",
       "spawned2inward",
-      "spawned2 block",
     ]);
 
     last.disconnectNode(Direction.FORWARD);
@@ -158,7 +226,11 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward"]);
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward"
+    ]);
     spawned2.uncrease();
 
     last.connectNode(Direction.FORWARD, spawned2);
@@ -167,7 +239,65 @@ describe("DirectionNode", function () {
         .paintGroup()
         .dump()
         .map((pg) => pg.id())
-    ).toEqual(["root", "0inward", "1inward", "2inward", "spawned2inward"]);
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "spawned2inward"
+    ]);
+
+    const spawned3 = makeBlock("spawned3");
+    next.connectNode(Direction.FORWARD, spawned3);
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "spawned2inward",
+      "spawned3inward"
+    ]);
+    next.connectNode(Direction.FORWARD, makeBlock("spawned4"));
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "spawned2inward",
+      "spawned4inward"
+    ]);
+    last.disconnectNode(Direction.FORWARD);
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "spawned4inward"
+    ]);
+    last.connectNode(Direction.FORWARD, makeBlock("spawned5"));
+    expect(
+      root
+        .paintGroup()
+        .dump()
+        .map((pg) => pg.id())
+    ).toEqual([
+      "root",
+      "0inward",
+      "1inward",
+      "spawned5inward",
+      "spawned4inward"
+    ]);
   });
 
   it("can be pulled", () => {
