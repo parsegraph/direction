@@ -918,6 +918,103 @@ describe("DirectionCaret", function () {
     );
   });
 
+  it("simple inner paint group removal", function () {
+    const containerBlock = new DirectionNode().setId("containerBlock");
+    const icar = makeCaret();
+    const objectNode = icar.root().setId("objectNode");
+    containerBlock.connectNode(Direction.INWARD, icar.root());
+    assert.deepEqual(
+      icar
+        .root()
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [containerBlock.id()],
+      "Inner paint group before crease"
+    );
+    assert.deepEqual([containerBlock, containerBlock], containerBlock.findPaintGroupInsert(icar.node()));
+    assert.deepEqual(icar.node().root().id(), containerBlock.id());
+
+    // connect containerBlock to objectNode
+    // connect objectNode to containerBlock
+    icar.crease();
+    assert.deepEqual(
+      containerBlock
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [containerBlock.id(), objectNode.id()],
+      "Inner paint group after crease"
+    );
+  });
+
+  it("inner paint group removal", function () {
+    const car = makeCaret();
+    const root = car.root().setId('root');
+    car.pull('f');
+
+    const acar = makeCaret();
+    acar.spawnMove('i', 'u');
+    const arrayNode = acar.node().setId("array");
+    acar.crease();
+    acar.spawnMove('f', 'b');
+    acar.spawnMove('f', 'u');
+
+    car.connect('f', acar.root());
+
+    car.spawnMove('d', 'u');
+    car.spawnMove('d', 'u');
+    car.spawn("f", "b");
+    car.spawn('d', 'u');
+
+    // Now we have the initial layout, add the object.
+    car.moveToRoot();
+    assert.deepEqual(car.node(), root);
+    car.disconnect('d');
+    car.pull('f');
+    car.connect("f", acar.root());
+    car.spawnMove('d', 'u');
+    car.spawnMove('d', 'u');
+
+    const containerBlock = new DirectionNode().setId("containerBlock");
+    const icar = makeCaret();
+    containerBlock.connectNode(Direction.INWARD, icar.root());
+    icar.crease();
+    const objectNode = icar.node().setId("object");
+    icar.spawnMove('d', 'u');
+    icar.spawn('b', 'b');
+    icar.spawn('f', 'b');
+    icar.spawn('d', 'u');
+    assert.deepEqual(
+      containerBlock
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [containerBlock.id(), objectNode.id()],
+      "Inner paint group"
+    );
+    assert.deepEqual(
+      car
+        .root()
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [car.root().id(), arrayNode.id()],
+      "Paint group should only contain 2 groups"
+    );
+    car.connect("f", containerBlock);
+
+    assert.deepEqual(
+      car
+        .root()
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [car.root().id(), arrayNode.id(), objectNode.id()],
+      "Paint group should only contain 3 groups"
+    );
+  });
+
   it("Layout disconnection test", function () {
     const car = makeCaret();
     car.spawnMove("f", "b");

@@ -531,7 +531,7 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     }
     --numCommon;
 
-    if (numCommon <= 0) {
+    if (numCommon < 0) {
       return false;
     }
 
