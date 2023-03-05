@@ -1009,6 +1009,106 @@ describe("DirectionCaret", function () {
     );
   });
 
+  it("double-nested array addition", function () {
+    const car = makeCaret();
+    const root = car.root().setId("root");
+    car.pull("f");
+
+    car.spawn("u", "u");
+    // first
+    car.push();
+    car.spawnMove("f", "b");
+    car.spawnMove("i", "u");
+    car.crease();
+    const firstArray = car.node().setId("firstArray");
+    car.spawnMove("f", "b");
+    car.spawnMove("f", "u");
+    car.pop();
+
+    // Second
+    car.spawnMove("d", "u");
+    car.save("second");
+    car.push();
+    car.spawnMove("f", "b");
+    car.spawnMove("i", "u");
+    car.crease();
+    let secondArray = car.node().setId("secondArray");
+    car.spawnMove("f", "b");
+    car.spawnMove("f", "u");
+    car.spawnMove("f", "b");
+    car.spawnMove("f", "u");
+    car.pop();
+
+    // Third array
+    car.spawnMove("d", "u");
+    car.push();
+    car.spawnMove("f", "b");
+    car.spawnMove("i", "u");
+    car.crease();
+    const thirdArray = car.node().setId("thirdArray");
+    car.spawnMove("f", "b");
+    car.spawnMove("f", "u");
+    car.pop();
+
+    // Test paint groups are correct
+    assert.deepEqual(
+      car
+        .root()
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [car.root().id(), firstArray.id(), secondArray.id(), thirdArray.id()],
+      "Inner paint group"
+    );
+
+    // Now, add a nested group
+    car.restore("second");
+    car.push();
+    car.spawnMove("f", "b");
+    car.spawnMove('i', 'u');
+    car.crease();
+    secondArray = car.node().setId("secondArray");
+    car.push();
+    car.spawnMove('i', 'b');
+    car.spawnMove('i', 'u');
+    car.crease();
+    const innerArray = car.node().setId("innerArray");
+    car.pop();
+    car.move('o');
+    car.spawnMove("f", "u");
+    car.spawnMove("f", "b");
+    car.spawnMove("f", "u");
+    car.pop();
+
+    // Test paint groups are correct
+    assert.deepEqual(
+      car
+        .root()
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [car.root().id(), firstArray.id(), secondArray.id(), innerArray.id(), thirdArray.id()],
+      "Inner paint group"
+    );
+
+    // Third array
+    car.spawnMove("d", "u");
+    car.push();
+    car.connect("f", thirdArray);
+    car.pop();
+
+    // Test paint groups are correct
+    assert.deepEqual(
+      car
+        .root()
+        .paintGroup()
+        .dump()
+        .map((n) => n.id()),
+      [car.root().id(), firstArray.id(), secondArray.id(), innerArray.id(), thirdArray.id()],
+      "Inner paint group"
+    );
+  });
+
   it("Layout disconnection test", function () {
     const car = makeCaret();
     car.spawnMove("f", "b");
