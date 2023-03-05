@@ -656,8 +656,10 @@ export default class DirectionNode<Value = any> implements PaintGroupNode {
     );
 
     if (closestPaintGroup.comesBefore(inserted)) {
-      // console.log("closest pg ", closestPaintGroup.id(), "comes before ", inserted.id());
-      return [closestPaintGroup, closestPaintGroup.paintGroup().next()];
+      //console.log("closest pg ", closestPaintGroup.id(), "comes before ", inserted.id(), "so insert at end");
+      const endOfPaintGroup = closestPaintGroup.getLastPaintGroup();
+      //console.log("end of pg", endOfPaintGroup.id());
+      return [endOfPaintGroup, endOfPaintGroup.paintGroup().next()];
     }
     // console.log("closest pg ", closestPaintGroup.id(), "comes after ", inserted.id());
     return [closestPaintGroup.paintGroup().prev(), closestPaintGroup];
