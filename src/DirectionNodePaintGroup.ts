@@ -1,6 +1,6 @@
 import { reverseDirection } from "./Direction";
 import { SiblingNode } from "./DirectionNodeSiblings";
-import { makeLimit } from './utils';
+import { makeLimit } from "./utils";
 
 export interface PaintGroupNode extends SiblingNode {
   paintGroup(): DirectionNodePaintGroup;
@@ -46,7 +46,9 @@ export default class DirectionNodePaintGroup {
 
       // Connect this node's first and last paint groups to this node.
       const parentsPaintGroup = this.node().parentNode().paintGroup();
-      const [prevNode, nextNode] = parentsPaintGroup.node().findPaintGroupInsert(this.node());
+      const [prevNode, nextNode] = parentsPaintGroup
+        .node()
+        .findPaintGroupInsert(this.node());
       this.connect(prevNode, this.node());
       this.connect(this.node(), nextNode);
     }
@@ -119,7 +121,7 @@ export default class DirectionNodePaintGroup {
   append(node: PaintGroupNode) {
     const [prevNode, nextNode] = this.node().findPaintGroupInsert(node);
     const nodeLast = node.getLastPaintGroup();
-    //console.log("Append", node.id(), "to", nodeLast.id(), "between", prevNode.id(), "and", nextNode.id());
+    // console.log("Append", node.id(), "to", nodeLast.id(), "between", prevNode.id(), "and", nextNode.id());
     this.connect(prevNode, node);
     this.connect(nodeLast, nextNode);
     this.verify();
@@ -130,7 +132,7 @@ export default class DirectionNodePaintGroup {
     const paintGroupLast = prevNode;
     const nodeFirst = node.paintGroup().next();
     const nodeLast = node.paintGroup().prev();
-    //console.log("Merge", node.id(), "between", paintGroupLast.id(), "and", nextNode.id());
+    // console.log("Merge", node.id(), "between", paintGroupLast.id(), "and", nextNode.id());
     this.connect(paintGroupLast, nodeFirst);
     this.connect(nodeLast, nextNode);
     this.verify();
@@ -139,7 +141,7 @@ export default class DirectionNodePaintGroup {
   disconnect() {
     const paintGroupLast = this.node().getLastPaintGroup();
 
-    //console.log("Disconnecting paintgroups ", this.node().id(), "to", paintGroupLast.id(), "from layout");
+    // console.log("Disconnecting paintgroups ", this.node().id(), "to", paintGroupLast.id(), "from layout");
 
     this.connect(
       this.node().paintGroup().prev(),
@@ -152,11 +154,11 @@ export default class DirectionNodePaintGroup {
   verify() {
     const lim = makeLimit();
     for (let n = this.next(); n !== this.node(); n = n.paintGroup().next()) {
-      //console.log(n.id());
+      // console.log(n.id());
       lim();
     }
     for (let n = this.prev(); n !== this.node(); n = n.paintGroup().prev()) {
-      //console.log(n.id());
+      // console.log(n.id());
       lim();
     }
   }

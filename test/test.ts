@@ -252,19 +252,19 @@ describe("DirectionCaret", function () {
     third.crease();
     const pgs = caret.root().paintGroup().dump();
     if (pgs[1] !== first) {
-      //console.log(pgs);
+      // console.log(pgs);
       throw new Error(
         "Second paint group must be " + first.id() + " but was " + pgs[1].id()
       );
     }
     if (pgs[2] !== third) {
-      //console.log(pgs);
+      // console.log(pgs);
       throw new Error(
         "Third paint group must be " + third + " but was " + pgs[2]
       );
     }
     if (pgs[0] !== caret.root()) {
-      //console.log(pgs);
+      // console.log(pgs);
       throw new Error(
         "First paint group must be " + caret.root() + " but was " + pgs[0]
       );
@@ -310,18 +310,18 @@ describe("DirectionCaret", function () {
     cnode.setId("cnode");
     car.crease();
     if (root.siblings().next() !== root) {
-      //console.log("root next: " + root.paintGroup().next().id());
-      //console.log("bnode next: " + bnode.paintGroup().next().id());
-      //console.log("cnode next: " + cnode.paintGroup().next().id());
+      // console.log("root next: " + root.paintGroup().next().id());
+      // console.log("bnode next: " + bnode.paintGroup().next().id());
+      // console.log("cnode next: " + cnode.paintGroup().next().id());
       throw new Error(
         "root's next layout node must be itself but was " +
           root.siblings().next()
       );
     }
     if (root.paintGroup().next() !== bnode) {
-      //console.log(root);
-      //console.log(bnode);
-      //console.log(cnode);
+      // console.log(root);
+      // console.log(bnode);
+      // console.log(cnode);
       throw new Error(
         "root's next paint group must be bnode but was " +
           root.paintGroup().next().id()
@@ -728,26 +728,17 @@ describe("DirectionCaret", function () {
     }
     if (b.paintGroup().next() !== a) {
       throw new Error(
-        "Wanted " +
-          a.id() +
-          " but got " +
-          b.paintGroup().next().id()
+        "Wanted " + a.id() + " but got " + b.paintGroup().next().id()
       );
     }
     if (r.paintGroup().next() !== b) {
       throw new Error(
-        "Wanted " +
-          b.id() +
-          " but got " +
-          r.paintGroup().next().id()
+        "Wanted " + b.id() + " but got " + r.paintGroup().next().id()
       );
     }
     if (n.paintGroup().next() !== n) {
       throw new Error(
-        "Wanted " +
-          n.id() +
-          " but got " +
-          n.paintGroup().next().id()
+        "Wanted " + n.id() + " but got " + n.paintGroup().next().id()
       );
     }
   });
@@ -795,7 +786,7 @@ describe("DirectionCaret", function () {
     newNode.setId("newNode");
     newNode.crease();
     midRoot.connectNode(Direction.INWARD, newNode);
-    //assert.isTrue(newNode.comesBefore(midRoot));
+    // assert.isTrue(newNode.comesBefore(midRoot));
   });
 
   it("Disconnect parent test, complex creased removal", function () {
@@ -845,15 +836,15 @@ describe("DirectionCaret", function () {
     originalRoot.setId("originalRoot");
 
     const expected = [originalRoot.id()];
-    for(let i = 0; i < 10; ++i) {
-      car.spawnMove('d', 'u');
-      car.pull('f');
+    for (let i = 0; i < 10; ++i) {
+      car.spawnMove("d", "u");
+      car.pull("f");
       const newNode = makeCaret().spawnMove("i", "b");
       newNode.setId("newNode-" + i);
       newNode.crease();
       newNode.root().setId("newNode-root-" + i);
       expected.push(newNode.id());
-      car.connect('f', newNode.root());
+      car.connect("f", newNode.root());
     }
     const pgs = originalRoot.paintGroup().dump();
     assert.deepEqual(
@@ -932,7 +923,10 @@ describe("DirectionCaret", function () {
       [containerBlock.id()],
       "Inner paint group before crease"
     );
-    assert.deepEqual([containerBlock, containerBlock], containerBlock.findPaintGroupInsert(icar.node()));
+    assert.deepEqual(
+      [containerBlock, containerBlock],
+      containerBlock.findPaintGroupInsert(icar.node())
+    );
     assert.deepEqual(icar.node().root().id(), containerBlock.id());
 
     // connect containerBlock to objectNode
@@ -950,41 +944,41 @@ describe("DirectionCaret", function () {
 
   it("inner paint group removal", function () {
     const car = makeCaret();
-    const root = car.root().setId('root');
-    car.pull('f');
+    const root = car.root().setId("root");
+    car.pull("f");
 
     const acar = makeCaret();
-    acar.spawnMove('i', 'u');
+    acar.spawnMove("i", "u");
     const arrayNode = acar.node().setId("array");
     acar.crease();
-    acar.spawnMove('f', 'b');
-    acar.spawnMove('f', 'u');
+    acar.spawnMove("f", "b");
+    acar.spawnMove("f", "u");
 
-    car.connect('f', acar.root());
+    car.connect("f", acar.root());
 
-    car.spawnMove('d', 'u');
-    car.spawnMove('d', 'u');
+    car.spawnMove("d", "u");
+    car.spawnMove("d", "u");
     car.spawn("f", "b");
-    car.spawn('d', 'u');
+    car.spawn("d", "u");
 
     // Now we have the initial layout, add the object.
     car.moveToRoot();
     assert.deepEqual(car.node(), root);
-    car.disconnect('d');
-    car.pull('f');
+    car.disconnect("d");
+    car.pull("f");
     car.connect("f", acar.root());
-    car.spawnMove('d', 'u');
-    car.spawnMove('d', 'u');
+    car.spawnMove("d", "u");
+    car.spawnMove("d", "u");
 
     const containerBlock = new DirectionNode().setId("containerBlock");
     const icar = makeCaret();
     containerBlock.connectNode(Direction.INWARD, icar.root());
     icar.crease();
     const objectNode = icar.node().setId("object");
-    icar.spawnMove('d', 'u');
-    icar.spawn('b', 'b');
-    icar.spawn('f', 'b');
-    icar.spawn('d', 'u');
+    icar.spawnMove("d", "u");
+    icar.spawn("b", "b");
+    icar.spawn("f", "b");
+    icar.spawn("d", "u");
     assert.deepEqual(
       containerBlock
         .paintGroup()
@@ -1174,11 +1168,7 @@ describe("DirectionCaret", function () {
       r.id(),
       "First paint group is r"
     );
-    assert.equal(
-      r.paintGroup().next().id(),
-      c.id(),
-      "Second paint group is c"
-    );
+    assert.equal(r.paintGroup().next().id(), c.id(), "Second paint group is c");
     assert.equal(
       c.paintGroup().next().id(),
       car.root().id(),
